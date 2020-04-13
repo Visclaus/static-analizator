@@ -5,10 +5,10 @@ from core.base_handler import BaseHandler
 from core.function_context import FunctionContext
 
 
-class FormatStringHandler(BaseHandler):
+class RandomGenHandler(BaseHandler):
     def __init__(self):
-        self.vulnerability_name = 'Format String'
-        self.pattern = r'(printf[(][a-zA-Z0-9_]*)([)])'  # TODO: improve to parse cases with whitespaces, maybe find another regex for this vuln
+        self.vulnerability_name = 'Non crypto-safe RNG'
+        self.pattern = r'rand\(\)|uniform_real_distribution'
         self.output = []
 
     def parse(self, contexts: List[FunctionContext]):
@@ -18,5 +18,5 @@ class FormatStringHandler(BaseHandler):
                     matches = re.finditer(self.pattern, key, re.IGNORECASE)
                     for _ in matches:
                         self.output.append(f"WARNING in function {context.name}! "
-                                           f"Possible format string vulnerable (line {line[key]})")
+                                           f"Usage of non crypto-safe Random Generator (line {line[key]})")
         return self.output

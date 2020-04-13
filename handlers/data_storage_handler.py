@@ -1,24 +1,23 @@
 import re
+from typing import List
 
-from core import base_parser
-from core.base_parser import BaseParser
+from core.base_handler import BaseHandler
+from core.function_context import FunctionContext
 
 
-class DataStorageManagementParser(BaseParser):
+class DataStorageManagementHandler(BaseHandler):
     def __init__(self):
+        self.vulnerability_name = 'Bad Data Storage Management'
+        self.pattern = r'(SetFileSecurity|SetKernelObjectSecurity|SetSecurityDescriptorDacl|SetServiceObjectSecurity|' \
+                       r'SetUserObjectSecurity|SECURITY_DESCRIPTOR|ConvertStringSecurityDescriptorToSecurityDescriptor|chmod|fchmod|chown|fchown|fcntl|setgroups|acl_\*)'
         self.output = []
-        self.vuln_name = 'Bad Data Storage Management'
-        self.pattern = [r'(SetFileSecurity|SetKernelObjectSecurity|SetSecurityDescriptorDacl|SetServiceObjectSecurity|SetUserObjectSecurity|SECURITY_DESCRIPTOR|ConvertStringSecurityDescriptorToSecurityDescriptor|chmod|fchmod|chown|fchown|fcntl|setgroups|acl_\*)']
 
-    def parse(self, cpp_code):
-        line_counter = 0
-        for line in cpp_code:
-            line_counter += 1
-
-            # unsafety functions
-            matches = re.finditer(self.pattern[0], line, re.IGNORECASE)
-            for matchNum, match in enumerate(matches):
-                matchNum = matchNum + 1
-                self.output.append(base_parser.warning(line_counter, str(line).strip(), self.vuln_name, 'WARNING', 'Usage of security related functions. Possible bad data storage management'))
-
+    def parse(self, contexts: List[FunctionContext]):
+        for context in contexts:
+            for line in context.source_code:
+                for key in line:
+                    matches = re.finditer(self.pattern, key, re.IGNORECASE)
+                    for _ in matches:
+                        self.output.append(f"WARNING in function {context.name}! "
+                                           f"Usage of security related functions (line {line[key]}). Possible bad data storage management")
         return self.output

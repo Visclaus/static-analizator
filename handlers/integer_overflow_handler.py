@@ -1,8 +1,8 @@
 import re
 from collections import namedtuple
 
-from core import base_parser
-from core.base_parser import BaseParser
+from core import base_handler
+from core.base_handler import BaseHandler
 
 Limit = namedtuple('Limit', 'min max')
 Variable = namedtuple('Variable', 'type value')
@@ -16,7 +16,7 @@ limits = {'int': Limit(-2 ** 31, 2 ** 31 - 1),
           'long': Limit(-2 ** 63, 2 ** 63 - 1)}
 
 
-class IntegerOverflowParser(BaseParser):
+class IntegerOverflowHandler(BaseHandler):
     def __init__(self):
         self.output = []
         self.vuln_name = 'Integer overflow'
@@ -58,14 +58,14 @@ class IntegerOverflowParser(BaseParser):
                             variables[match.group(1)].type].max)
                     except AssertionError:
                         error_details = '{} of type {}'.format(match.group(1), variables[match.group(1)].type)
-                        self.output.append(base_parser.warning(line_counter, str(line), self.vuln_name, 'WARNING',
+                        self.output.append(base_handler.warning(line_counter, str(line), self.vuln_name, 'WARNING',
                                                                f'Integer overflow for {error_details}'))
         return self.output
 
 
 if __name__ == "__main__":
     with open("tests/race_condition_test.cpp") as file:
-        parser = IntegerOverflowParser()
+        parser = IntegerOverflowHandler()
         out = parser.parse(file)
         for state in out:
             print(state)

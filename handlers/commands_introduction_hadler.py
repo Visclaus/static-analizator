@@ -1,23 +1,23 @@
 import re
+from typing import List
 
-from core import base_parser
-from core.base_parser import BaseParser
+from core.base_handler import BaseHandler
+from core.function_context import FunctionContext
 
 
-class CommandsIntroductionHandler(BaseParser):
-    def __init__(self, analyzer_context):
-        super().__init__(analyzer_context)
-        self.output = []
+class CommandsIntroductionHandler(BaseHandler):
+    def __init__(self):
         self.vulnerability_name = 'Introduction of Commands'
         self.pattern = r'(system|popen|execlp|execvp|ShellExecute)'
+        self.output = []
 
-    def parse(self, source_code):
-        cur_line_number = 0
-        for line in source_code:
-            cur_line_number += 1
-            matches = re.finditer(self.pattern, line, re.IGNORECASE)
-            for match in matches:
-                self.output.append(base_parser.warning(cur_line_number, str(line), self.vulnerability_name, 'WARNING',
-                                                       f'Usage of not safe  function "{match.group(1)}", which may cause execution of commands commands'))
+    def parse(self, contexts: List[FunctionContext]):
+        for context in contexts:
+            for line in context.source_code:
+                for key in line:
+                    matches = re.finditer(self.pattern, key, re.IGNORECASE)
+                    for match in matches:
+                        self.output.append(f"WARNING in function {context.name}! "
+                                           f"Usage of non safe function \"{match.group(1)}\" (line {line[key]}), which may cause execution of commands commands")
 
         return self.output

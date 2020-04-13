@@ -1,9 +1,10 @@
 import re
+from typing import List
 
 from core.function_variable import FunctionVariable
 from core.thread import Thread
 from core.variable import Variable
-from function_context import FunctionContext
+from core.function_context import FunctionContext
 
 variable_regexp = r"^\s*(extern\s+)?(unsigned\s+|signed\s+)?(const\s+)?(int|short|char|long|double|float|byte|string)\s+" \
                   r"(\*)?([a-zA-Z0-9_:<>]*)\s*(\[.+])?\s*(=.+)?(\s*;)"
@@ -20,26 +21,39 @@ def find_contexts(source_code):
 
 
 def get_initial_contexts(source_code):
-    # пока что распознает только простые типы параметров без указателей массивов и т.д.
+    # пока что распознает только простые типы параметров и возвращаемых значений без указателей массивов и т.д.
     start_context_pattern = r'(int|short|char|long|double|float|byte|void)\s+([a-zA-Z0-9_]+)\s*(\(.*\))'
     end_context_pattern = r'}'
     found_contexts = []
     cur_context = None
+    cur_context_open_bracers = 0
+    cur_context_close_bracers = 0
     for cur_line_number, line in enumerate(source_code):
         cur_line_number += 1
         match = re.match(start_context_pattern, line)
+        open_bracer_matches = re.finditer(r'\{', line)
+        close_bracer_matches = re.finditer(r'\}', line)
+        for _ in open_bracer_matches:
+            cur_context_open_bracers += 1
+
+        for _ in close_bracer_matches:
+            cur_context_close_bracers += 1
+
         if match is not None:
             cur_context = FunctionContext()
             cur_context.return_type = match.group(1)
             cur_context.name = match.group(2)
             cur_context.parameters = get_context_parameters(line)
             cur_context.source_code.append({line: cur_line_number})
-        else:
+        elif cur_context is not None:
             if re.match(end_context_pattern, line) is None:
                 cur_context.source_code.append({line: cur_line_number})
-            else:
+            elif cur_context_open_bracers == cur_context_close_bracers:
                 cur_context.source_code.append({line: cur_line_number})
                 found_contexts.append(cur_context)
+                cur_context = None
+                cur_context_open_bracers = 0
+                cur_context_close_bracers = 0
                 continue
     return found_contexts
 
@@ -76,7 +90,7 @@ def get_declared_threads(source_code, declared_variables):
     return threads
 
 
-def get_parameters(raw_parameters, declared_variables):
+def get_parameters(raw_parameters, declared_variables) -> List[Variable]:
     """
     Function to get a list of parameters from function or thread declaration
     This parameters are linked with some declared variable
@@ -103,11 +117,11 @@ def get_context_parameters(raw_parameters):
         parameters_list = re.split(r",\s*", tmp)
         for parameter in parameters_list:
             # пока что распознает только простые типы параметров без указателей массивов и т.д.
-            match = re.match(r'(int|short|char|long|double|float|byte|string)\s+([a-zA-Z0-9_]+)', parameter)
+            match = re.match(r'(int|short|char|long|double|float|byte|string)\s+\**([a-zA-Z0-9_]+)', parameter)
             v_parameters_list.append(FunctionVariable(match.group(1), match.group(2)))
     return v_parameters_list
 
 
 class AnalyzedCode:
-    def __init__(self):
-        self.contexts = find_contexts()
+    def __init__(self, source_code):
+        self.contexts = find_contexts(source_code)

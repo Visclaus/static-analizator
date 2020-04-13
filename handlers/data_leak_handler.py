@@ -1,24 +1,22 @@
 import re
+from typing import List
 
-from core import base_parser
-from core.base_parser import BaseParser
+from core.base_handler import BaseHandler
+from core.function_context import FunctionContext
 
 
-class DataLeak(BaseParser):
+class DataLeakHandler(BaseHandler):
     def __init__(self):
+        self.vulnerability_name = 'Data Leak'
+        self.pattern = r'(GetLastError|SHGetFolderPath|SHGetFolderPathAndSubDir|SHGetSpecialFolderPath|GetEnvironmentStrings|GetEnvironmentVariable|\*printf|errno|getenv|strerror|perror)'
         self.output = []
-        self.vuln_name = 'Data Leak'
-        self.pattern = [r'(GetLastError|SHGetFolderPath|SHGetFolderPathAndSubDir|SHGetSpecialFolderPath|GetEnvironmentStrings|GetEnvironmentVariable|\*printf|errno|getenv|strerror|perror)']
 
-    def parse(self, cpp_code):
-        line_counter = 0
-        for line in cpp_code:
-            line_counter += 1
-            # just searching for unsafe functions;
-            # unsafety functions
-            matches = re.finditer(self.pattern[0], line, re.IGNORECASE)
-            for matchNum, match in enumerate(matches):
-                matchNum = matchNum + 1
-                self.output.append(base_parser.warning(line_counter, str(line).strip(), self.vuln_name, 'WARNING', 'Receiving data that can affect application security. Possible Data leak'))
-
+    def parse(self, contexts: List[FunctionContext]):
+        for context in contexts:
+            for line in context.source_code:
+                for key in line:
+                    matches = re.finditer(self.pattern, key, re.IGNORECASE)
+                    for _ in matches:
+                        self.output.append(f"WARNING in function {context.name}! "
+                                           f"Receiving data (line {line[key]}) that can affect application security. Possible Data leak")
         return self.output
