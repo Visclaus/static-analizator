@@ -4,7 +4,7 @@
 
 using namespace std;
 
-void print(string str) {
+void print1(string str) {
     if (True){
         try{
             main();

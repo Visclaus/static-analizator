@@ -15,9 +15,11 @@ class DataStorageManagementHandler(BaseHandler):
     def parse(self, contexts: List[FunctionContext]):
         for context in contexts:
             for line in context.source_code:
-                for key in line:
-                    matches = re.finditer(self.pattern, key, re.IGNORECASE)
-                    for _ in matches:
-                        self.output.append(f"WARNING in function {context.name}! "
-                                           f"Usage of security related functions (line {line[key]}). Possible bad data storage management")
+                cur_line_number = list(line.values())[0]
+                processed_line = list(line.keys())[0]
+                matches = re.finditer(self.pattern, processed_line, re.IGNORECASE)
+                for _ in matches:
+                    self.output.append(f"WARNING in function {context.name}! "
+                                       f"Usage of security related functions (line {cur_line_number}). Possible bad data storage management")
+
         return self.output
