@@ -1,6 +1,6 @@
 from typing import List
 
-from core import main_code_parser, utils
+from core import main_code_parser
 from core.base_handler import BaseHandler
 from core.variable import *
 from core.function_context import FunctionContext
@@ -25,7 +25,7 @@ class BufferOverflowHandler(BaseHandler):
                         declaration = parameter.full_declaration
                         is_p = is_pointer(declaration)
                         is_a = is_array(declaration)
-                        if parameter.var_name in utils.replace_var_list(declared_variables) and (is_a or is_p):
+                        if parameter.var_name in list(map(lambda x: x.var_name, declared_variables)) and (is_a or is_p):
                             self.output.append(
                                 f"WARNING in function {context.name}! "
                                 f"Usage of buffer \"{declaration}\" (line {parameter.line_appeared}) "
