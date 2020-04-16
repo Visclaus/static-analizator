@@ -153,8 +153,8 @@ class UI(object):
 
             main_menu = Menu()
             file_menu = Menu(tearoff=0)
-            file_menu.add_command(label="Open", command=self.GetRequired())
-          #  file_menu.add_command(label="New project", command=self.start_main(HANDLER))
+            file_menu.add_command(label="Open", command=lambda: self.GetRequired())
+          #  file_menu.add_command(label="New project", command=lambda: self.start_main(HANDLER))
             main_menu.add_cascade(label="File", menu=file_menu)
             Mainform.root.config(menu=main_menu)
 
