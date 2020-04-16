@@ -3,6 +3,7 @@
 
 from tkinter import *
 from tkinter import Menu
+from PIL import Image, ImageTk
 import os
 
 
@@ -180,7 +181,7 @@ class UI(object):
 
         def restart_program():
             phyton = sys.executable
-            os.execl(phyton, phyton, * sys.argv)
+            os.execl(phyton, phyton, *sys.argv)
 
         try:
             Mainform = FORM('Static Code Analyzer', '700x600', FONT)
@@ -226,13 +227,20 @@ class UI(object):
                                                                        vulnerabilities_to_find(Mainform.root, V),
                                                                        HANDLER))
 
-            frame1.grid(column=0, row=0, rowspan=5, padx=(12, 8), pady=(5, 10), sticky=(N, S, E, W))
+            load = Image.open(getcwd() + '/photo/op.png')
+            render = ImageTk.PhotoImage(load)
+            img = Label(Mainform.root, image=render)
+            img.image = render
+            img.grid(column=0, row=1, padx=(8, 12), pady=(5, 10), sticky=(N, S, E, W))
+
+            frame1.grid(column=0, row=0, rowspan=4, padx=(12, 8), pady=(5, 10), sticky=(N, S, E, W))
             frame2.grid(column=1, row=0, rowspan=5, padx=(8, 8), pady=(5, 10), sticky=(N, S, E, W))
             frame3.grid(column=2, row=0, rowspan=5, padx=(8, 12), pady=(5, 10), columnspan=4, sticky=(N, S, E, W))
-            button1.grid(column=0, row=1, padx=(0, 8), pady=(0, 12))
-            button2.grid(column=0, row=2, padx=(0, 8), pady=(0, 12))
-            button3.grid(column=6, row=1, padx=(4, 8), pady=(0, 12))
-            button4.grid(column=6, row=2, padx=(4, 8), pady=(0, 12))
+
+            button1.grid(column=0, row=2, padx=(0, 8), pady=(0, 12))
+            button2.grid(column=0, row=3, padx=(0, 8), pady=(0, 12))
+            button3.grid(column=6, row=2, padx=(4, 8), pady=(0, 12))
+            button4.grid(column=6, row=3, padx=(4, 8), pady=(0, 12))
 
             Mainform.root.columnconfigure(0, weight=0)
             Mainform.root.columnconfigure(1, weight=1)
