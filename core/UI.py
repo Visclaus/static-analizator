@@ -2,6 +2,8 @@
 # -*- coding: UTF-8 -*-
 
 from tkinter import *
+from tkinter import Menu
+
 
 
 class FORM(object):
@@ -20,6 +22,8 @@ class FORM(object):
     #	button = Button(parent, text=text, font=self.font, width=width, height=height, relief=RAISED)
     #	button.bind('<Button-1>', action)
     #	return button
+
+
 
     def CreateCheckbutton(self, parent: Tk, text: str, height: int, width: int, anchor, value: int = 1):
         value = IntVar(value=value)
@@ -73,6 +77,8 @@ class FORM(object):
             self.Error(e.args)
 
 
+
+
 FONT = ('Hermit', 8)
 # TEXT_WIDTH	= 100
 # TEXT_HEIGHT	= 400
@@ -85,6 +91,7 @@ class UI(object):
     def __init__(self, VULNERABILITIES):
         self.Programms, self.Tests = self.GetRequired()
         self.vulnerabilities = VULNERABILITIES
+
 
     def GetRequired(self):
         from tkinter.filedialog import askopenfilenames
@@ -139,13 +146,21 @@ class UI(object):
                 messagebox.showwarning("Warning", "No Vulnerability Selected")
                 return ()
 
+
         try:
-            Mainform = FORM('Static Code Analyzer', '650x450', FONT)
+            Mainform = FORM('Static Code Analyzer', '700x600', FONT)
             Mainform.root.focus_force()
 
-            frame1 = Frame(Mainform.root, borderwidth=0, relief="groove", width=100, height=400)
-            frame2 = Frame(Mainform.root, borderwidth=2, relief="groove", width=100, height=400)
-            frame3 = Frame(Mainform.root, borderwidth=2, relief="groove", width=200, height=400)
+            main_menu = Menu()
+            file_menu = Menu(tearoff=0)
+            file_menu.add_command(label="Open", command=self.GetRequired())
+          #  file_menu.add_command(label="New project", command=self.start_main(HANDLER))
+            main_menu.add_cascade(label="File", menu=file_menu)
+            Mainform.root.config(menu=main_menu)
+
+            frame1 = Frame(Mainform.root, borderwidth=0, relief="groove", width=100, height=300)
+            frame2 = Frame(Mainform.root, borderwidth=2, relief="groove", width=100, height=300)
+            frame3 = Frame(Mainform.root, borderwidth=2, relief="groove", width=200, height=300)
             '''V1 = Mainform.CreateCheckbutton(frame1, text = "Buffer Overflow",					 height=1, width=25, anchor=W)
             V2 = Mainform.CreateCheckbutton(frame1, text = "Format String Vulnerability",		 height=1, width=25, anchor=W)
             V3 = Mainform.CreateCheckbutton(frame1, text = "SQL injection",					 height=1, width=25, anchor=W)
@@ -189,18 +204,20 @@ class UI(object):
                                                                        vulnerabilities_to_find(Mainform.root, V),
                                                                        HANDLER))
 
-            frame1.grid(column=0, row=0, padx=(12, 8), pady=(5, 10), sticky=(N, S, E, W))
-            frame2.grid(column=1, row=0, padx=(8, 8), pady=(5, 10), sticky=(N, S, E, W))
-            frame3.grid(column=2, row=0, padx=(8, 12), pady=(5, 10), columnspan=2, sticky=(N, S, E, W))
-            button1.grid(column=0, row=1, padx=(12, 8), pady=(0, 12))
-            button2.grid(column=1, row=1, padx=(8, 8), pady=(0, 12))
-            button3.grid(column=2, row=1, padx=(8, 8), pady=(0, 12))
-            button4.grid(column=3, row=1, padx=(8, 12), pady=(0, 12))
+
+            frame1.grid(column=0, row=0, rowspan=5, padx=(12, 8), pady=(5, 10), sticky=(N, S, E, W))
+            frame2.grid(column=1, row=0, rowspan=5, padx=(8, 8), pady=(5, 10), sticky=(N, S, E, W))
+            frame3.grid(column=2, row=0, rowspan=5, padx=(8, 12), pady=(5, 10), columnspan=2, sticky=(N, S, E, W))
+            button1.grid(column=0, row=1, padx=(0, 8), pady=(0, 12))
+            button2.grid(column=0, row=2, padx=(0, 8), pady=(0, 12))
+            button3.grid(column=4, row=1, padx=(4, 8), pady=(0, 12))
+            button4.grid(column=4, row=2, padx=(4, 8), pady=(0, 12))
 
             Mainform.root.columnconfigure(0, weight=0)
             Mainform.root.columnconfigure(1, weight=1)
             Mainform.root.columnconfigure(2, weight=10)
             Mainform.root.columnconfigure(3, weight=10)
+            Mainform.root.columnconfigure(4, weight=10)
             Mainform.root.rowconfigure(0, weight=1)
             Mainform.root.rowconfigure(1, weight=0)
 
@@ -230,14 +247,18 @@ class UI(object):
         try:
             program, content = queue.get(block=True)
             queue.task_done()
-            Vulnerabilitiesform = FORM(program + ' Vulnerabilities', '600x250', FONT)
+            Vulnerabilitiesform = FORM(program + ' Vulnerabilities', '600x750', FONT)
 
             l1 = Label(Vulnerabilitiesform.root, text='Vulnerabilities found:', font=Vulnerabilitiesform.font, width=28,
                        anchor='w')
             l2 = Label(Vulnerabilitiesform.root, text='Where:', font=Vulnerabilitiesform.font, anchor='w')
+            l3 = Label(Vulnerabilitiesform.root, text='Code:', font=Vulnerabilitiesform.font, anchor='w')
 
             found = Frame(Vulnerabilitiesform.root, borderwidth=2, relief="groove", width=28, height=20)
+            code = Frame(Vulnerabilitiesform.root, borderwidth=2, relief="groove", width=178, height=20)
             where = Frame(Vulnerabilitiesform.root, borderwidth=2, relief="groove", width=150, height=20)
+
+            codelb = Text(code, borderwidth=0, relief="groove", wrap=WORD, state='disabled')
             foundlb = Vulnerabilitiesform.CreateListbox(found, SINGLE, 0,
                                                         action=lambda event: Vulnerabilitiesform.WriteToText(wheretb,
                                                                                                              content[
@@ -245,13 +266,20 @@ class UI(object):
                                                                                                                      foundlb.curselection())],
                                                                                                              'CLEAR'))
             wheretb = Text(where, borderwidth=0, relief="groove", wrap=WORD, state='disabled')
+
+
+
             Vulnerabilitiesform.CreateScrollbox(where, wheretb, VERTICAL)
             Vulnerabilitiesform.FillListbox(foundlb, content.keys())
+            Vulnerabilitiesform.CreateScrollbox(code, codelb, VERTICAL)
 
-            l1.grid(column=0, row=0, padx=(12, 8), pady=(5, 2), sticky=(N, S, E, W))
-            l2.grid(column=1, row=0, padx=(8, 8), pady=(5, 2), sticky=(N, S, E, W))
-            found.grid(column=0, row=1, padx=(12, 8), pady=(0, 10), sticky=(N, S, E, W))
-            where.grid(column=1, row=1, padx=(8, 12), pady=(0, 10), sticky=(N, S, E, W))
+            l3.grid(column=0, row=0, padx=(8, 8), pady=(5, 2), sticky=(N, S, E, W))
+            l1.grid(column=0, row=2, padx=(8, 8), pady=(5, 2), sticky=(N, S, E, W))
+            l2.grid(column=1, row=2, padx=(8, 8), pady=(5, 2), sticky=(N, S, E, W))
+
+            code.grid(column=0, columnspan=2, row=1, padx=(12, 12), pady=(0, 10), sticky=(N, S, E, W))
+            found.grid(column=0, row=3, padx=(12, 2), pady=(0, 12), sticky=(N, S, E, W))
+            where.grid(column=1, row=3, padx=(2, 12), pady=(0, 12), sticky=(N, S, E, W))
 
             Vulnerabilitiesform.root.columnconfigure(0, weight=1)
             Vulnerabilitiesform.root.columnconfigure(1, weight=20)
