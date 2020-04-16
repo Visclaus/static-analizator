@@ -3,6 +3,7 @@
 
 from tkinter import *
 from tkinter import Menu
+import os
 
 
 class FORM(object):
@@ -177,6 +178,10 @@ class UI(object):
             self.Programms = self.GetProgramms()
             main_form.FillListbox(list_box, [basename(file) for file in self.Programms])
 
+        def restart_program():
+            phyton = sys.executable
+            os.execl(phyton, phyton, * sys.argv)
+
         try:
             Mainform = FORM('Static Code Analyzer', '700x600', FONT)
             Mainform.root.focus_force()
@@ -191,7 +196,8 @@ class UI(object):
             main_menu = Menu()
             file_menu = Menu(tearoff=0)
             file_menu.add_command(label="Open", command=lambda: fill_programs_list(Mainform, lb3))
-        #  file_menu.add_command(label="New project", command=lambda: )
+            file_menu.add_command(label="New project", command=lambda: restart_program())
+            file_menu.add_command(label="Exit", command=lambda: Mainform.root.quit())
             main_menu.add_cascade(label="File", menu=file_menu)
             Mainform.root.config(menu=main_menu)
             Mainform.FillListbox(lb2, [basename(file) for file in self.Tests])
