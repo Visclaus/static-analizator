@@ -29,6 +29,7 @@ class BufferOverflowHandler(BaseHandler):
                             self.output.append(
                                 f"WARNING in function {context.name}! "
                                 f"Usage of buffer \"{declaration}\" (line {parameter.line_appeared}) "
-                                f"in unsafe function {match.group(1)} (line {cur_line_number}).\nIt may cause overflow of the buffer!\n")
+                                f"in unsafe function {match.group(1)} (line {cur_line_number}).\n"
+                                f"It may cause overflow of the buffer!\n")
 
         return self.output
