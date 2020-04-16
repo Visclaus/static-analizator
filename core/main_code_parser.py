@@ -35,10 +35,8 @@ def get_initial_contexts(source_code):
         close_bracer_matches = re.finditer(r'\}', line)
         for _ in open_bracer_matches:
             cur_context_open_bracers += 1
-
         for _ in close_bracer_matches:
             cur_context_close_bracers += 1
-
         if match is not None:
             cur_context = FunctionContext()
             cur_context.return_type = match.group(1)

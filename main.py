@@ -22,6 +22,7 @@ from core.main_code_parser import get_initial_contexts, find_contexts, AnalyzedC
 from handlers.buffer_overflow_handler import BufferOverflowHandler
 from handlers.format_string_handler import FormatStringHandler
 from handlers.race_condition_handler import RaceConditionHandler
+from handlers.rng_handler import RandomGenHandler
 from handlers.sql_injection_handler import SQLInjectionHandler
 
 HANDLER = {
@@ -32,7 +33,7 @@ HANDLER = {
     # "Neglect of Error Handling":		None,
     # "Bad Data Storage Management":		None,
     # "Data Leak":						None,
-    # "Not Crypto-resistant Algorithms": None,
+    "Non safe random generator algorithms": RandomGenHandler,
     # "Integer Overflow": None,
     "Race Condition": RaceConditionHandler,
     # "Readers–writers problem":			None,

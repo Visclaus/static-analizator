@@ -5,7 +5,6 @@ from tkinter import *
 from tkinter import Menu
 
 
-
 class FORM(object):
 
     def __init__(self, title: str, geometry: str, font: (str, int)):
@@ -22,8 +21,6 @@ class FORM(object):
     #	button = Button(parent, text=text, font=self.font, width=width, height=height, relief=RAISED)
     #	button.bind('<Button-1>', action)
     #	return button
-
-
 
     def CreateCheckbutton(self, parent: Tk, text: str, height: int, width: int, anchor, value: int = 1):
         value = IntVar(value=value)
@@ -77,8 +74,6 @@ class FORM(object):
             self.Error(e.args)
 
 
-
-
 FONT = ('Hermit', 8)
 # TEXT_WIDTH	= 100
 # TEXT_HEIGHT	= 400
@@ -87,10 +82,10 @@ BUTTON_HEIGHT = 1
 
 
 class UI(object):
+    Programms = []
 
     def __init__(self, VULNERABILITIES):
         self.Tests = self.GetRequired()
-        #self.Programms = self.GetRequired()
         self.vulnerabilities = VULNERABILITIES
 
     def GetProgramms(self):
@@ -98,11 +93,10 @@ class UI(object):
         from os import getcwd, listdir
         # from os.path import basename
         try:
-                root = Tk()
-                root.withdraw()
-                Programms = [P for P in list(askopenfilenames(title='Import Program(s) to Analyze', initialdir=getcwd(),
-                                                                 filetypes=[("CPP", ".cpp")]))]  # '.*' -> '.cpp'
-                self.Programms = Programms
+            root = Tk()
+            root.withdraw()
+            Programms = [P for P in list(askopenfilenames(title='Import Program(s) to Analyze', initialdir=getcwd(),
+                                                          filetypes=[("CPP", ".cpp")]))]  # '.*' -> '.cpp'
         except IOError as e:
             from tkinter import messagebox
             messagebox.showwarning("Warning", "Folder 'tests' doesn't exist")
@@ -110,7 +104,6 @@ class UI(object):
             root.destroy()
 
             return Programms
-
 
     def GetRequired(self):
         from tkinter.filedialog import askopenfilenames
@@ -142,7 +135,12 @@ class UI(object):
             from tkinter import _tkinter
             try:
                 # return [listbox.get(listbox.curselection())]						# SINGLE SELECTION
-                programs = [listbox.get(idx) for idx in listbox.curselection()]  # EXTENDED SELECTION
+                programs = []
+                selected_programs = [listbox.get(idx) for idx in listbox.curselection()]  # EXTENDED SELECTION
+                for cur_program in selected_programs:
+                    for program in self.Programms:
+                        if cur_program in program:
+                            programs.append(program)
                 if not len(programs):
                     raise _tkinter.TclError
                 return programs
@@ -163,39 +161,28 @@ class UI(object):
                 messagebox.showwarning("Warning", "No Vulnerability Selected")
                 return ()
 
+        def fill_programs_list(main_form: FORM, list_box: Listbox):
+            self.Programms = self.GetProgramms()
+            main_form.FillListbox(list_box, [basename(file) for file in self.Programms])
 
         try:
             Mainform = FORM('Static Code Analyzer', '700x600', FONT)
             Mainform.root.focus_force()
-
-            main_menu = Menu()
-            file_menu = Menu(tearoff=0)
-            file_menu.add_command(label="Open", command=lambda: self.GetProgramms())
-            file_menu.add_command(label="New project", command=lambda: self.start_main(self, HANDLER))
-            main_menu.add_cascade(label="File", menu=file_menu)
-            Mainform.root.config(menu=main_menu)
-
             frame1 = Frame(Mainform.root, borderwidth=0, relief="groove", width=100, height=300)
             frame2 = Frame(Mainform.root, borderwidth=2, relief="groove", width=100, height=300)
             frame3 = Frame(Mainform.root, borderwidth=2, relief="groove", width=200, height=300)
-            '''V1 = Mainform.CreateCheckbutton(frame1, text = "Buffer Overflow",					 height=1, width=25, anchor=W)
-            V2 = Mainform.CreateCheckbutton(frame1, text = "Format String Vulnerability",		 height=1, width=25, anchor=W)
-            V3 = Mainform.CreateCheckbutton(frame1, text = "SQL injection",					 height=1, width=25, anchor=W)
-            V4 = Mainform.CreateCheckbutton(frame1, text = "Command Injection",				 height=1, width=25, anchor=W)
-            V5 = Mainform.CreateCheckbutton(frame1, text = "Neglect of Error Handling",		 height=1, width=25, anchor=W)
-            V6 = Mainform.CreateCheckbutton(frame1, text = "Bad Data Storage Management",		 height=1, width=25, anchor=W)
-            V7 = Mainform.CreateCheckbutton(frame1, text = "Data Leak",						 height=1, width=25, anchor=W)
-            V8 = Mainform.CreateCheckbutton(frame1, text = "Not Crypto-resistant Algorithms",	 height=1, width=25, anchor=W)
-            V9 = Mainform.CreateCheckbutton(frame1, text = "Integer Overflow",				 height=1, width=25, anchor=W)
-            V10 = Mainform.CreateCheckbutton(frame1, text = "Race Condition",					 height=1, width=25, anchor=W)
-            V11 = Mainform.CreateCheckbutton(frame1, text = "Readers–writers problem",		 height=1, width=25, anchor=W)'''
             V = tuple(
                 [Mainform.CreateCheckbutton(frame1, text=vulnerability, height=1, width=25, anchor=W) for vulnerability
                  in self.vulnerabilities])
             lb2 = Mainform.CreateListbox(frame2, EXTENDED, 0)
             lb3 = Mainform.CreateListbox(frame3, EXTENDED, 0)
+            main_menu = Menu()
+            file_menu = Menu(tearoff=0)
+            file_menu.add_command(label="Open", command=lambda: fill_programs_list(Mainform, lb3))
+            file_menu.add_command(label="New project", command=lambda: self.start_main(HANDLER))
+            main_menu.add_cascade(label="File", menu=file_menu)
+            Mainform.root.config(menu=main_menu)
             Mainform.FillListbox(lb2, [basename(file) for file in self.Tests])
-            Mainform.FillListbox(lb3, self.Programms)
             Mainform.CreateScrollbox(frame3, lb3)
 
             button1 = Button(Mainform.root, width=BUTTON_WIDTH, height=BUTTON_HEIGHT,
@@ -209,7 +196,7 @@ class UI(object):
                                                                        vulnerabilities_to_find(Mainform.root, V),
                                                                        HANDLER))
             button3 = Button(Mainform.root, width=BUTTON_WIDTH, height=BUTTON_HEIGHT,
-                             state=NORMAL if self.Programms else DISABLED, font=Mainform.font,
+                             state=NORMAL, font=Mainform.font,
                              text="Analyze N Programs",
                              command=lambda: self.find_vulnerabilities(programs_to_analyze(Mainform.root, lb3),
                                                                        vulnerabilities_to_find(Mainform.root, V),
@@ -220,7 +207,6 @@ class UI(object):
                              command=lambda: self.find_vulnerabilities(self.Programms,
                                                                        vulnerabilities_to_find(Mainform.root, V),
                                                                        HANDLER))
-
 
             frame1.grid(column=0, row=0, rowspan=5, padx=(12, 8), pady=(5, 10), sticky=(N, S, E, W))
             frame2.grid(column=1, row=0, rowspan=5, padx=(8, 8), pady=(5, 10), sticky=(N, S, E, W))
@@ -253,7 +239,8 @@ class UI(object):
             queue = Queue()
             create_workers(len(programs), self.start_vulnerabilities, queue)
             # content = lambda program: dict([ (vulnerability, 'Here will be Code for "{}"'.format(vulnerability)) for vulnerability in vulnerabilities ])
-            content = lambda program: dict([(vulnerability, HANDLER(vulnerability, program)) for vulnerability in vulnerabilities if
+            content = lambda program: dict(
+                [(vulnerability, HANDLER(vulnerability, program)) for vulnerability in vulnerabilities if
                  HANDLER(vulnerability, program)])
             create_jobs([(program, content(program)) for program in programs if content(program)], queue)
         except Empty:
@@ -283,8 +270,6 @@ class UI(object):
                                                                                                                      foundlb.curselection())],
                                                                                                              'CLEAR'))
             wheretb = Text(where, borderwidth=0, relief="groove", wrap=WORD, state='disabled')
-
-
 
             Vulnerabilitiesform.CreateScrollbox(where, wheretb, VERTICAL)
             Vulnerabilitiesform.FillListbox(foundlb, content.keys())
