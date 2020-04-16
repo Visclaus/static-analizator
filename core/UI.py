@@ -89,8 +89,27 @@ BUTTON_HEIGHT = 1
 class UI(object):
 
     def __init__(self, VULNERABILITIES):
-        self.Programms, self.Tests = self.GetRequired()
+        self.Tests = self.GetRequired()
+        #self.Programms = self.GetRequired()
         self.vulnerabilities = VULNERABILITIES
+
+    def GetProgramms(self):
+        from tkinter.filedialog import askopenfilenames
+        from os import getcwd, listdir
+        # from os.path import basename
+        try:
+                root = Tk()
+                root.withdraw()
+                Programms = [P for P in list(askopenfilenames(title='Import Program(s) to Analyze', initialdir=getcwd(),
+                                                                 filetypes=[("CPP", ".cpp")]))]  # '.*' -> '.cpp'
+                self.Programms = Programms
+        except IOError as e:
+            from tkinter import messagebox
+            messagebox.showwarning("Warning", "Folder 'tests' doesn't exist")
+        finally:
+            root.destroy()
+
+            return Programms
 
 
     def GetRequired(self):
@@ -101,8 +120,6 @@ class UI(object):
         try:
             root = Tk()
             root.withdraw()
-            Programms = [P for P in list(askopenfilenames(title='Import Program(s) to Analyze', initialdir=getcwd(),
-                                                          filetypes=[("CPP", ".cpp")]))]  # '.*' -> '.cpp'
             Tests = [getcwd() + '/tests/' + file for file in listdir(getcwd() + '/tests') if
                      file.endswith(".cpp")]  # .cc .c
         except IOError as e:
@@ -115,7 +132,7 @@ class UI(object):
         finally:
             root.destroy()
 
-        return Programms, Tests
+        return Tests
 
     def start_main(self, HANDLER):
         from os.path import basename
@@ -153,8 +170,8 @@ class UI(object):
 
             main_menu = Menu()
             file_menu = Menu(tearoff=0)
-            file_menu.add_command(label="Open", command=lambda: self.GetRequired())
-          #  file_menu.add_command(label="New project", command=lambda: self.start_main(HANDLER))
+            file_menu.add_command(label="Open", command=lambda: self.GetProgramms())
+            file_menu.add_command(label="New project", command=lambda: self.start_main(self, HANDLER))
             main_menu.add_cascade(label="File", menu=file_menu)
             Mainform.root.config(menu=main_menu)
 
@@ -207,11 +224,11 @@ class UI(object):
 
             frame1.grid(column=0, row=0, rowspan=5, padx=(12, 8), pady=(5, 10), sticky=(N, S, E, W))
             frame2.grid(column=1, row=0, rowspan=5, padx=(8, 8), pady=(5, 10), sticky=(N, S, E, W))
-            frame3.grid(column=2, row=0, rowspan=5, padx=(8, 12), pady=(5, 10), columnspan=2, sticky=(N, S, E, W))
+            frame3.grid(column=2, row=0, rowspan=5, padx=(8, 12), pady=(5, 10), columnspan=4, sticky=(N, S, E, W))
             button1.grid(column=0, row=1, padx=(0, 8), pady=(0, 12))
             button2.grid(column=0, row=2, padx=(0, 8), pady=(0, 12))
-            button3.grid(column=4, row=1, padx=(4, 8), pady=(0, 12))
-            button4.grid(column=4, row=2, padx=(4, 8), pady=(0, 12))
+            button3.grid(column=6, row=1, padx=(4, 8), pady=(0, 12))
+            button4.grid(column=6, row=2, padx=(4, 8), pady=(0, 12))
 
             Mainform.root.columnconfigure(0, weight=0)
             Mainform.root.columnconfigure(1, weight=1)
