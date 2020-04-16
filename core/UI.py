@@ -131,6 +131,18 @@ class UI(object):
         from os.path import basename
         from os import getcwd
 
+        def test_to_analyze(root, listbox: Tk):
+            from tkinter import _tkinter
+            try:
+                programs = [listbox.get(idx) for idx in listbox.curselection()]
+                if not len(programs):
+                    raise _tkinter.TclError
+                return programs
+            except _tkinter.TclError:
+                from tkinter import messagebox
+                messagebox.showwarning("Warning", "No Test Selected")
+                return ()
+
         def programs_to_analyze(root, listbox: Tk):
             from tkinter import _tkinter
             try:
@@ -179,7 +191,7 @@ class UI(object):
             main_menu = Menu()
             file_menu = Menu(tearoff=0)
             file_menu.add_command(label="Open", command=lambda: fill_programs_list(Mainform, lb3))
-            file_menu.add_command(label="New project", command=lambda: self.start_main(HANDLER))
+        #  file_menu.add_command(label="New project", command=lambda: )
             main_menu.add_cascade(label="File", menu=file_menu)
             Mainform.root.config(menu=main_menu)
             Mainform.FillListbox(lb2, [basename(file) for file in self.Tests])
@@ -188,7 +200,7 @@ class UI(object):
             button1 = Button(Mainform.root, width=BUTTON_WIDTH, height=BUTTON_HEIGHT,
                              state=NORMAL if self.Tests else DISABLED, font=Mainform.font, text="Analyze N Tests",
                              command=lambda: self.find_vulnerabilities(
-                                 [getcwd() + '/tests/' + file for file in programs_to_analyze(Mainform.root, lb2)],
+                                 [getcwd() + '/tests/' + file for file in test_to_analyze(Mainform.root, lb2)],
                                  vulnerabilities_to_find(Mainform.root, V), HANDLER))
             button2 = Button(Mainform.root, width=BUTTON_WIDTH, height=BUTTON_HEIGHT,
                              state=NORMAL if self.Tests else DISABLED, font=Mainform.font, text="Analyze All Tests",
@@ -202,7 +214,7 @@ class UI(object):
                                                                        vulnerabilities_to_find(Mainform.root, V),
                                                                        HANDLER))
             button4 = Button(Mainform.root, width=BUTTON_WIDTH, height=BUTTON_HEIGHT,
-                             state=NORMAL if self.Programms else DISABLED, font=Mainform.font,
+                             state=NORMAL, font=Mainform.font,
                              text="Analyze All Programs",
                              command=lambda: self.find_vulnerabilities(self.Programms,
                                                                        vulnerabilities_to_find(Mainform.root, V),
