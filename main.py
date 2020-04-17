@@ -20,6 +20,7 @@ from os import getcwd
 from core.UI import UI
 from core.main_code_parser import get_initial_contexts, find_contexts
 from handlers.buffer_overflow_handler import BufferOverflowHandler
+from handlers.empty_catch_handler import EmptyCatchHandler
 from handlers.format_string_handler import FormatStringHandler
 from handlers.memory_leak_handler import MemoryLeakHandler
 from handlers.race_condition_handler import RaceConditionHandler
@@ -28,6 +29,7 @@ from handlers.sql_injection_handler import SQLInjectionHandler
 
 HANDLER = {
     "Buffer Overflow": BufferOverflowHandler,
+    "Empty Catch Block": EmptyCatchHandler,
     # "Format String Vulnerability": FormatStringHandler,
     # "SQL injection": SqlInjectionHandler,
     # "Command Injection": None,
