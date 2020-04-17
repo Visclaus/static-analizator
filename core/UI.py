@@ -7,6 +7,14 @@ from PIL import Image, ImageTk
 import os
 
 
+
+def comment_remover(text):
+    import re
+    pattern = re.compile(r'//.*?$|/\*.*?\*/|\'(?:\\.|[^\\\'])*\'|"(?:\\.|[^\\"])*"', re.DOTALL | re.MULTILINE)
+    replacer = lambda match: None if match.group(0).startswith('/') else match.group(0)
+    return re.sub(pattern, replacer, text)
+
+
 class FORM(object):
 
     def __init__(self, title: str, geometry: str, font: (str, int)):
@@ -227,7 +235,7 @@ class UI(object):
                                                                        vulnerabilities_to_find(Mainform.root, V),
                                                                        HANDLER))
 
-            load = Image.open(getcwd() + '/photo/op.png')
+            load = Image.open(getcwd() + '/photo/logo.png')
             render = ImageTk.PhotoImage(load)
             img = Label(Mainform.root, image=render)
             img.image = render
@@ -263,7 +271,11 @@ class UI(object):
         from queue import Queue, Empty
         try:
             queue = Queue()
-            create_workers(len(programs), self.start_vulnerabilities, queue)
+            programs_code = []
+            for program in programs:
+                cur_code = open(program, 'r').read().splitlines()
+                programs_code.append(cur_code)
+            create_workers(len(programs), self.start_vulnerabilities, queue, programs_code)
             # content = lambda program: dict([ (vulnerability, 'Here will be Code for "{}"'.format(vulnerability)) for vulnerability in vulnerabilities ])
             content = lambda program: dict(
                 [(vulnerability, HANDLER(vulnerability, program)) for vulnerability in vulnerabilities if
@@ -273,7 +285,7 @@ class UI(object):
             from tkinter import messagebox
             messagebox.showinfo("Info", "No vulnerabilities detected")
 
-    def start_vulnerabilities(self, queue):
+    def start_vulnerabilities(self, queue, cur_code):
         try:
             program, content = queue.get(block=True)
             queue.task_done()
@@ -287,8 +299,7 @@ class UI(object):
             found = Frame(Vulnerabilitiesform.root, borderwidth=2, relief="groove", width=28, height=20)
             code = Frame(Vulnerabilitiesform.root, borderwidth=2, relief="groove", width=178, height=20)
             where = Frame(Vulnerabilitiesform.root, borderwidth=2, relief="groove", width=150, height=20)
-
-            codelb = Text(code, borderwidth=0, relief="groove", wrap=WORD, state='disabled')
+            codelb = Vulnerabilitiesform.CreateListbox(code, EXTENDED, 0)
             foundlb = Vulnerabilitiesform.CreateListbox(found, SINGLE, 0,
                                                         action=lambda event: Vulnerabilitiesform.WriteToText(wheretb,
                                                                                                              content[
@@ -298,6 +309,7 @@ class UI(object):
             wheretb = Text(where, borderwidth=0, relief="groove", wrap=WORD, state='disabled')
 
             Vulnerabilitiesform.CreateScrollbox(where, wheretb, VERTICAL)
+            Vulnerabilitiesform.FillListbox(codelb, [f"{index + 1}          " + line for index, line in enumerate(cur_code)])
             Vulnerabilitiesform.FillListbox(foundlb, content.keys())
             Vulnerabilitiesform.CreateScrollbox(code, codelb, VERTICAL)
 

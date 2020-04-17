@@ -1,35 +1,31 @@
 from typing import List
 
-from core import main_code_parser
 from core.base_handler import BaseHandler
-from core.variable import *
 from core.function_context import FunctionContext
+from core.variable import *
 
 
-class BufferOverflowHandler(BaseHandler):
+class MemoryLeakHandler(BaseHandler):
     def __init__(self):
-        self.vulnerability_name = 'Buffer Overflow'
-        self.pattern = r'(strcpy|printf|strcat|memcpy|gets|sprintf|vsprintf|strncpy|scanfs|sscanf|snscanf|strlen)\((.*)\)'
+        self.vulnerability_name = 'Memory Leak'
+        self.pattern = r'^\s*free(\(.*\))'
         self.output = []
 
     def parse(self, contexts: List[FunctionContext]):
         for context in contexts:
-            declared_variables = context.variables
+            m_vars = []
+            for var in context.variables:
+                if var.value is not None:
+                    if "new" in var.value:
+                        m_vars.append(var)
+            free_matches = []
             for line in context.source_code:
-                cur_line_number = list(line.values())[0]
                 processed_line = list(line.keys())[0]
                 matches = re.finditer(self.pattern, processed_line, re.IGNORECASE)
-                for match in matches:
-                    parameters = main_code_parser.get_parameters(match.group(0), declared_variables)
-                    for parameter in parameters:
-                        declaration = parameter.full_declaration
-                        is_p = is_pointer(declaration)
-                        is_a = is_array(declaration)
-                        if parameter.var_name in list(map(lambda x: x.var_name, declared_variables)) and (is_a or is_p):
-                            self.output.append(
-                                f"WARNING in function {context.name}! "
-                                f"Usage of buffer \"{declaration}\" (line {parameter.line_appeared}) "
-                                f"in unsafe function {match.group(1)} (line {cur_line_number}).\n"
-                                f"It may cause overflow of the buffer!\n")
+                free_matches += matches
+            for var in m_vars:
+                if var.var_name not in list(map(lambda x: x.group(1)[1:-1].strip(), free_matches)):
+                    self.output.append(f"WARNING in function {context.name}! "
+                                       f"No memory free for dynamic variable {var.var_name} (line {var.line_appeared}). Memory leak vulnerability!")
 
         return self.output

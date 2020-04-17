@@ -6,11 +6,6 @@ from core.thread import Thread
 from core.variable import Variable
 from core.function_context import FunctionContext
 
-variable_regexp = r"^\s*(extern\s+)?(unsigned\s+|signed\s+)?(const\s+)?(int|short|char|long|double|float|byte|string)\s+" \
-                  r"(\*)?([a-zA-Z0-9_:<>]*)\s*(\[.+])?\s*(=.+)?(\s*;)"
-
-thread_regexp = r'^\s*std::thread\s+([a-zA-Z0-9_:<>]*)\(([a-zA-Z0-9_:<>]*)(,\s?[a-zA-Z0-9_:<>]*|,\s?"[a-zA-Z0-9_:<>]*"*)*\)'
-
 
 def find_contexts(source_code):
     initial_contexts = get_initial_contexts(source_code)
@@ -57,18 +52,41 @@ def get_initial_contexts(source_code):
 
 
 def get_declared_variables(source_code):
-    variables = []
+    variable_regexp = \
+        r"^\s*" \
+        r"(extern\s+)?" \
+        r"(const\s+)?" \
+        r"(char|unsigned char|signed char|int" \
+        r"|unsigned int|signed int|short int|unsigned short int|signed short int|long int|singed long int" \
+        r"|unsigned long int|long long int|signed long long int|unsigned long long int|float|double|long double|wchar_t)\s+" \
+        r"(\*+)?" \
+        r"([\w]*[\w\d_]*)\s*" \
+        r"(\[.+])?\s*" \
+        r"(=.+)?" \
+        r"(\s*;)"
+    found_variables = []
     for line in source_code:
         cur_line_number = list(line.values())[0]
         processed_line = list(line.keys())[0]
         matches = re.finditer(variable_regexp, processed_line, re.MULTILINE)
         for match in matches:
-            var = Variable(match.group(0), cur_line_number, match.group(6), match.group(4))
-            if match.group(8) is not None:
-                tmp = match.group(8)[1:]
-                var.value = tmp.replace(' ', '')
-            variables.append(var)
-    return variables
+            var = Variable(match.group(0).strip(), cur_line_number, match.group(5), match.group(3))
+            if match.group(7) is not None:
+                var.value = match.group(7)[1:].strip()
+            found_variables.append(var)
+    variable_regexp_1 = \
+        r"^\s*" \
+        r"([\w]*[\w\d_]*)\s*" \
+        r"(=.+)+" \
+        r"(\s*;)"
+    for line in source_code:
+        processed_line = list(line.keys())[0]
+        matches = re.finditer(variable_regexp_1, processed_line, re.MULTILINE)
+        for match in matches:
+            for var in found_variables:
+                if match.group(1) == var.var_name:
+                    var.value = match.group(2)[1:].strip()
+    return found_variables
 
 
 def get_declared_threads(source_code, declared_variables):
@@ -79,16 +97,17 @@ def get_declared_threads(source_code, declared_variables):
     :return: list of Threads
     :rtype: List[Thread]
     """
-    threads = []  # List of threads in code
+    thread_regexp = r'^\s*std::thread\s+([a-zA-Z0-9_:<>]*)\(([a-zA-Z0-9_:<>]*)(,\s?[a-zA-Z0-9_:<>]*|,\s?"[a-zA-Z0-9_:<>]*"*)*\)'
+    found_threads = []  # List of threads in code
     for line in source_code:
         cur_line_number = list(line.values())[0]
         processed_line = list(line.keys())[0]
         matches = re.finditer(thread_regexp, processed_line)
         for match in matches:
             cur_thread_params = get_parameters(match.group(0), declared_variables)
-            threads.append(
+            found_threads.append(
                 Thread(match.group(0), cur_line_number, match.group(1), match.group(2), cur_thread_params))
-    return threads
+    return found_threads
 
 
 def get_parameters(raw_parameters, declared_variables) -> List[Variable]:
@@ -119,11 +138,6 @@ def get_context_parameters(raw_parameters):
         parameters_list = re.split(r",\s*", tmp)
         for parameter in parameters_list:
             # пока что распознает только простые типы параметров без указателей массивов и т.д.
-            match = re.match(r'(int|short|char|long|double|float|byte|string)\s+\**([a-zA-Z0-9_]+)', parameter)
-            v_parameters_list.append(FunctionVariable(match.group(1), match.group(2)))
+            match = re.match(r'(int|short|char|long|double|float|byte|string)\s+(\*)*([a-zA-Z0-9_]+)', parameter)
+            v_parameters_list.append(FunctionVariable(match.group(1), match.group(3)))
     return v_parameters_list
-
-
-class AnalyzedCode:
-    def __init__(self, source_code):
-        self.contexts = find_contexts(source_code)

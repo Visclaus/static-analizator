@@ -11,6 +11,8 @@ void print1(string str) {
         } catch(err){printf(err);
         }
     }
+    int *b = new int[size];
+    char c;
 	int a = 3;
 	char *b = 'j';
 	int c = 5;
@@ -18,6 +20,7 @@ void print1(string str) {
 	int param1 = 2;
 	char param2 = 'a';
 	char buf[3];
+	c = 'P';
 	strcpy(buf, param1);
 	cout << str;
 

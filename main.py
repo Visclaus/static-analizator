@@ -18,9 +18,10 @@
 from os import getcwd
 
 from core.UI import UI
-from core.main_code_parser import get_initial_contexts, find_contexts, AnalyzedCode
+from core.main_code_parser import get_initial_contexts, find_contexts
 from handlers.buffer_overflow_handler import BufferOverflowHandler
 from handlers.format_string_handler import FormatStringHandler
+from handlers.memory_leak_handler import MemoryLeakHandler
 from handlers.race_condition_handler import RaceConditionHandler
 from handlers.rng_handler import RandomGenHandler
 from handlers.sql_injection_handler import SQLInjectionHandler
@@ -33,9 +34,10 @@ HANDLER = {
     # "Neglect of Error Handling":		None,
     # "Bad Data Storage Management":		None,
     # "Data Leak":						None,
-    "Non safe random generator algorithms": RandomGenHandler,
+    # "Non safe random generator algorithms": RandomGenHandler,
     # "Integer Overflow": None,
-    "Race Condition": RaceConditionHandler,
+    # "Race Condition": RaceConditionHandler,
+    # "Memory Leak":  MemoryLeakHandler
     # "Readers–writers problem":			None,
     # "Locked Mutexes problem":         None
 }
