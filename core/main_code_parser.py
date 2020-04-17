@@ -41,6 +41,8 @@ def get_initial_contexts(source_code):
         elif cur_context is not None:
             if re.match(end_context_pattern, line) is None:
                 cur_context.source_code.append({line: cur_line_number})
+            if re.match(end_context_pattern, line) and cur_context_open_bracers != cur_context_close_bracers:
+                cur_context.source_code.append({line: cur_line_number})
             elif cur_context_open_bracers == cur_context_close_bracers:
                 cur_context.source_code.append({line: cur_line_number})
                 found_contexts.append(cur_context)

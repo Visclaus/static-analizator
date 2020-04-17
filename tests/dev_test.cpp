@@ -5,12 +5,21 @@
 using namespace std;
 
 void print1(string str) {
-    if (True){
-        try{
-            main();
-        } catch(err){printf(err);
-        }
-    }
+catch(){
+
+
+}
+
+catch(){
+
+}
+
+catch(){
+
+}
+catch(){
+int a;
+}
     int *b = new int[size];
     char c;
 	int a = 3;
@@ -54,7 +63,7 @@ void print(string str) {
 	    strcpy(buf, param1);
 	}
 	catch (const char* msg){
-	    //empty catch block
+	    //comment no code
 	}
 	cout << str;
 
