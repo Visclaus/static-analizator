@@ -47,7 +47,12 @@ void print(string str) {
 	int param1 = 2;
 	char param2 = 'a';
 	char buf[3];
-	strcpy(buf, param1);
+	try{
+	    strcpy(buf, param1);
+	}
+	catch (const char* msg){
+	    //empty catch block
+	}
 	cout << str;
 
 	std::thread t1(print, a, b);
