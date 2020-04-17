@@ -4,7 +4,7 @@
 
 using namespace std;
 
-void print(string str) {
+void print1(string str) {
     if (True){
         try{
             main();
@@ -60,5 +60,6 @@ void print(string str) {
 	std::thread t2(print, c, x);
 	std::thread t3(test, c);
 }
+
 
 

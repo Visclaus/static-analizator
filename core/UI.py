@@ -2,6 +2,9 @@
 # -*- coding: UTF-8 -*-
 
 from tkinter import *
+from tkinter import Menu
+from PIL import Image, ImageTk
+import os
 
 
 class FORM(object):
@@ -81,10 +84,28 @@ BUTTON_HEIGHT = 1
 
 
 class UI(object):
+    Programms = []
 
     def __init__(self, VULNERABILITIES):
-        self.Programms, self.Tests = self.GetRequired()
+        self.Tests = self.GetRequired()
         self.vulnerabilities = VULNERABILITIES
+
+    def GetProgramms(self):
+        from tkinter.filedialog import askopenfilenames
+        from os import getcwd, listdir
+        # from os.path import basename
+        try:
+            root = Tk()
+            root.withdraw()
+            Programms = [P for P in list(askopenfilenames(title='Import Program(s) to Analyze', initialdir=getcwd(),
+                                                          filetypes=[("CPP", ".cpp")]))]  # '.*' -> '.cpp'
+        except IOError as e:
+            from tkinter import messagebox
+            messagebox.showwarning("Warning", "Folder 'tests' doesn't exist")
+        finally:
+            root.destroy()
+
+            return Programms
 
     def GetRequired(self):
         from tkinter.filedialog import askopenfilenames
@@ -94,8 +115,6 @@ class UI(object):
         try:
             root = Tk()
             root.withdraw()
-            Programms = [P for P in list(askopenfilenames(title='Import Program(s) to Analyze', initialdir=getcwd(),
-                                                          filetypes=[("CPP", ".cpp")]))]  # '.*' -> '.cpp'
             Tests = [getcwd() + '/tests/' + file for file in listdir(getcwd() + '/tests') if
                      file.endswith(".cpp")]  # .cc .c
         except IOError as e:
@@ -108,17 +127,34 @@ class UI(object):
         finally:
             root.destroy()
 
-        return Programms, Tests
+        return Tests
 
     def start_main(self, HANDLER):
         from os.path import basename
         from os import getcwd
 
+        def test_to_analyze(root, listbox: Tk):
+            from tkinter import _tkinter
+            try:
+                programs = [listbox.get(idx) for idx in listbox.curselection()]
+                if not len(programs):
+                    raise _tkinter.TclError
+                return programs
+            except _tkinter.TclError:
+                from tkinter import messagebox
+                messagebox.showwarning("Warning", "No Test Selected")
+                return ()
+
         def programs_to_analyze(root, listbox: Tk):
             from tkinter import _tkinter
             try:
                 # return [listbox.get(listbox.curselection())]						# SINGLE SELECTION
-                programs = [listbox.get(idx) for idx in listbox.curselection()]  # EXTENDED SELECTION
+                programs = []
+                selected_programs = [listbox.get(idx) for idx in listbox.curselection()]  # EXTENDED SELECTION
+                for cur_program in selected_programs:
+                    for program in self.Programms:
+                        if cur_program in program:
+                            programs.append(program)
                 if not len(programs):
                     raise _tkinter.TclError
                 return programs
@@ -139,37 +175,39 @@ class UI(object):
                 messagebox.showwarning("Warning", "No Vulnerability Selected")
                 return ()
 
-        try:
-            Mainform = FORM('Static Code Analyzer', '650x450', FONT)
-            Mainform.root.focus_force()
+        def fill_programs_list(main_form: FORM, list_box: Listbox):
+            self.Programms = self.GetProgramms()
+            main_form.FillListbox(list_box, [basename(file) for file in self.Programms])
 
-            frame1 = Frame(Mainform.root, borderwidth=0, relief="groove", width=100, height=400)
-            frame2 = Frame(Mainform.root, borderwidth=2, relief="groove", width=100, height=400)
-            frame3 = Frame(Mainform.root, borderwidth=2, relief="groove", width=200, height=400)
-            '''V1 = Mainform.CreateCheckbutton(frame1, text = "Buffer Overflow",					 height=1, width=25, anchor=W)
-            V2 = Mainform.CreateCheckbutton(frame1, text = "Format String Vulnerability",		 height=1, width=25, anchor=W)
-            V3 = Mainform.CreateCheckbutton(frame1, text = "SQL injection",					 height=1, width=25, anchor=W)
-            V4 = Mainform.CreateCheckbutton(frame1, text = "Command Injection",				 height=1, width=25, anchor=W)
-            V5 = Mainform.CreateCheckbutton(frame1, text = "Neglect of Error Handling",		 height=1, width=25, anchor=W)
-            V6 = Mainform.CreateCheckbutton(frame1, text = "Bad Data Storage Management",		 height=1, width=25, anchor=W)
-            V7 = Mainform.CreateCheckbutton(frame1, text = "Data Leak",						 height=1, width=25, anchor=W)
-            V8 = Mainform.CreateCheckbutton(frame1, text = "Not Crypto-resistant Algorithms",	 height=1, width=25, anchor=W)
-            V9 = Mainform.CreateCheckbutton(frame1, text = "Integer Overflow",				 height=1, width=25, anchor=W)
-            V10 = Mainform.CreateCheckbutton(frame1, text = "Race Condition",					 height=1, width=25, anchor=W)
-            V11 = Mainform.CreateCheckbutton(frame1, text = "Readers–writers problem",		 height=1, width=25, anchor=W)'''
+        def restart_program():
+            phyton = sys.executable
+            os.execl(phyton, phyton, *sys.argv)
+
+        try:
+            Mainform = FORM('Static Code Analyzer', '700x600', FONT)
+            Mainform.root.focus_force()
+            frame1 = Frame(Mainform.root, borderwidth=0, relief="groove", width=100, height=300)
+            frame2 = Frame(Mainform.root, borderwidth=2, relief="groove", width=100, height=300)
+            frame3 = Frame(Mainform.root, borderwidth=2, relief="groove", width=200, height=300)
             V = tuple(
                 [Mainform.CreateCheckbutton(frame1, text=vulnerability, height=1, width=25, anchor=W) for vulnerability
                  in self.vulnerabilities])
             lb2 = Mainform.CreateListbox(frame2, EXTENDED, 0)
             lb3 = Mainform.CreateListbox(frame3, EXTENDED, 0)
+            main_menu = Menu()
+            file_menu = Menu(tearoff=0)
+            file_menu.add_command(label="Open", command=lambda: fill_programs_list(Mainform, lb3))
+            file_menu.add_command(label="New project", command=lambda: restart_program())
+            file_menu.add_command(label="Exit", command=lambda: Mainform.root.quit())
+            main_menu.add_cascade(label="File", menu=file_menu)
+            Mainform.root.config(menu=main_menu)
             Mainform.FillListbox(lb2, [basename(file) for file in self.Tests])
-            Mainform.FillListbox(lb3, self.Programms)
             Mainform.CreateScrollbox(frame3, lb3)
 
             button1 = Button(Mainform.root, width=BUTTON_WIDTH, height=BUTTON_HEIGHT,
                              state=NORMAL if self.Tests else DISABLED, font=Mainform.font, text="Analyze N Tests",
                              command=lambda: self.find_vulnerabilities(
-                                 [getcwd() + '/tests/' + file for file in programs_to_analyze(Mainform.root, lb2)],
+                                 [getcwd() + '/tests/' + file for file in test_to_analyze(Mainform.root, lb2)],
                                  vulnerabilities_to_find(Mainform.root, V), HANDLER))
             button2 = Button(Mainform.root, width=BUTTON_WIDTH, height=BUTTON_HEIGHT,
                              state=NORMAL if self.Tests else DISABLED, font=Mainform.font, text="Analyze All Tests",
@@ -177,30 +215,38 @@ class UI(object):
                                                                        vulnerabilities_to_find(Mainform.root, V),
                                                                        HANDLER))
             button3 = Button(Mainform.root, width=BUTTON_WIDTH, height=BUTTON_HEIGHT,
-                             state=NORMAL if self.Programms else DISABLED, font=Mainform.font,
+                             state=NORMAL, font=Mainform.font,
                              text="Analyze N Programs",
                              command=lambda: self.find_vulnerabilities(programs_to_analyze(Mainform.root, lb3),
                                                                        vulnerabilities_to_find(Mainform.root, V),
                                                                        HANDLER))
             button4 = Button(Mainform.root, width=BUTTON_WIDTH, height=BUTTON_HEIGHT,
-                             state=NORMAL if self.Programms else DISABLED, font=Mainform.font,
+                             state=NORMAL, font=Mainform.font,
                              text="Analyze All Programs",
                              command=lambda: self.find_vulnerabilities(self.Programms,
                                                                        vulnerabilities_to_find(Mainform.root, V),
                                                                        HANDLER))
 
-            frame1.grid(column=0, row=0, padx=(12, 8), pady=(5, 10), sticky=(N, S, E, W))
-            frame2.grid(column=1, row=0, padx=(8, 8), pady=(5, 10), sticky=(N, S, E, W))
-            frame3.grid(column=2, row=0, padx=(8, 12), pady=(5, 10), columnspan=2, sticky=(N, S, E, W))
-            button1.grid(column=0, row=1, padx=(12, 8), pady=(0, 12))
-            button2.grid(column=1, row=1, padx=(8, 8), pady=(0, 12))
-            button3.grid(column=2, row=1, padx=(8, 8), pady=(0, 12))
-            button4.grid(column=3, row=1, padx=(8, 12), pady=(0, 12))
+            load = Image.open(getcwd() + '/photo/op.png')
+            render = ImageTk.PhotoImage(load)
+            img = Label(Mainform.root, image=render)
+            img.image = render
+            img.grid(column=0, row=1, padx=(8, 12), pady=(5, 10), sticky=(N, S, E, W))
+
+            frame1.grid(column=0, row=0, rowspan=4, padx=(12, 8), pady=(5, 10), sticky=(N, S, E, W))
+            frame2.grid(column=1, row=0, rowspan=5, padx=(8, 8), pady=(5, 10), sticky=(N, S, E, W))
+            frame3.grid(column=2, row=0, rowspan=5, padx=(8, 12), pady=(5, 10), columnspan=4, sticky=(N, S, E, W))
+
+            button1.grid(column=0, row=2, padx=(0, 8), pady=(0, 12))
+            button2.grid(column=0, row=3, padx=(0, 8), pady=(0, 12))
+            button3.grid(column=6, row=2, padx=(4, 8), pady=(0, 12))
+            button4.grid(column=6, row=3, padx=(4, 8), pady=(0, 12))
 
             Mainform.root.columnconfigure(0, weight=0)
             Mainform.root.columnconfigure(1, weight=1)
             Mainform.root.columnconfigure(2, weight=10)
             Mainform.root.columnconfigure(3, weight=10)
+            Mainform.root.columnconfigure(4, weight=10)
             Mainform.root.rowconfigure(0, weight=1)
             Mainform.root.rowconfigure(1, weight=0)
 
@@ -219,7 +265,8 @@ class UI(object):
             queue = Queue()
             create_workers(len(programs), self.start_vulnerabilities, queue)
             # content = lambda program: dict([ (vulnerability, 'Here will be Code for "{}"'.format(vulnerability)) for vulnerability in vulnerabilities ])
-            content = lambda program: dict([(vulnerability, HANDLER(vulnerability, program)) for vulnerability in vulnerabilities if
+            content = lambda program: dict(
+                [(vulnerability, HANDLER(vulnerability, program)) for vulnerability in vulnerabilities if
                  HANDLER(vulnerability, program)])
             create_jobs([(program, content(program)) for program in programs if content(program)], queue)
         except Empty:
@@ -230,14 +277,18 @@ class UI(object):
         try:
             program, content = queue.get(block=True)
             queue.task_done()
-            Vulnerabilitiesform = FORM(program + ' Vulnerabilities', '600x250', FONT)
+            Vulnerabilitiesform = FORM(program + ' Vulnerabilities', '600x750', FONT)
 
             l1 = Label(Vulnerabilitiesform.root, text='Vulnerabilities found:', font=Vulnerabilitiesform.font, width=28,
                        anchor='w')
             l2 = Label(Vulnerabilitiesform.root, text='Where:', font=Vulnerabilitiesform.font, anchor='w')
+            l3 = Label(Vulnerabilitiesform.root, text='Code:', font=Vulnerabilitiesform.font, anchor='w')
 
             found = Frame(Vulnerabilitiesform.root, borderwidth=2, relief="groove", width=28, height=20)
+            code = Frame(Vulnerabilitiesform.root, borderwidth=2, relief="groove", width=178, height=20)
             where = Frame(Vulnerabilitiesform.root, borderwidth=2, relief="groove", width=150, height=20)
+
+            codelb = Text(code, borderwidth=0, relief="groove", wrap=WORD, state='disabled')
             foundlb = Vulnerabilitiesform.CreateListbox(found, SINGLE, 0,
                                                         action=lambda event: Vulnerabilitiesform.WriteToText(wheretb,
                                                                                                              content[
@@ -245,13 +296,18 @@ class UI(object):
                                                                                                                      foundlb.curselection())],
                                                                                                              'CLEAR'))
             wheretb = Text(where, borderwidth=0, relief="groove", wrap=WORD, state='disabled')
+
             Vulnerabilitiesform.CreateScrollbox(where, wheretb, VERTICAL)
             Vulnerabilitiesform.FillListbox(foundlb, content.keys())
+            Vulnerabilitiesform.CreateScrollbox(code, codelb, VERTICAL)
 
-            l1.grid(column=0, row=0, padx=(12, 8), pady=(5, 2), sticky=(N, S, E, W))
-            l2.grid(column=1, row=0, padx=(8, 8), pady=(5, 2), sticky=(N, S, E, W))
-            found.grid(column=0, row=1, padx=(12, 8), pady=(0, 10), sticky=(N, S, E, W))
-            where.grid(column=1, row=1, padx=(8, 12), pady=(0, 10), sticky=(N, S, E, W))
+            l3.grid(column=0, row=0, padx=(8, 8), pady=(5, 2), sticky=(N, S, E, W))
+            l1.grid(column=0, row=2, padx=(8, 8), pady=(5, 2), sticky=(N, S, E, W))
+            l2.grid(column=1, row=2, padx=(8, 8), pady=(5, 2), sticky=(N, S, E, W))
+
+            code.grid(column=0, columnspan=2, row=1, padx=(12, 12), pady=(0, 10), sticky=(N, S, E, W))
+            found.grid(column=0, row=3, padx=(12, 2), pady=(0, 12), sticky=(N, S, E, W))
+            where.grid(column=1, row=3, padx=(2, 12), pady=(0, 12), sticky=(N, S, E, W))
 
             Vulnerabilitiesform.root.columnconfigure(0, weight=1)
             Vulnerabilitiesform.root.columnconfigure(1, weight=20)

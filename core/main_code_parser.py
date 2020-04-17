@@ -35,10 +35,8 @@ def get_initial_contexts(source_code):
         close_bracer_matches = re.finditer(r'\}', line)
         for _ in open_bracer_matches:
             cur_context_open_bracers += 1
-
         for _ in close_bracer_matches:
             cur_context_close_bracers += 1
-
         if match is not None:
             cur_context = FunctionContext()
             cur_context.return_type = match.group(1)
@@ -61,32 +59,35 @@ def get_initial_contexts(source_code):
 def get_declared_variables(source_code):
     variables = []
     for line in source_code:
-        for key in line:
-            matches = re.finditer(variable_regexp, key, re.MULTILINE)
-            for match in matches:
-                var = Variable(match.group(0), line[key], match.group(6), match.group(4))
-                if match.group(8) is not None:
-                    tmp = match.group(8)[1:]
-                    var.value = tmp.replace(' ', '')
-                variables.append(var)
+        cur_line_number = list(line.values())[0]
+        processed_line = list(line.keys())[0]
+        matches = re.finditer(variable_regexp, processed_line, re.MULTILINE)
+        for match in matches:
+            var = Variable(match.group(0), cur_line_number, match.group(6), match.group(4))
+            if match.group(8) is not None:
+                tmp = match.group(8)[1:]
+                var.value = tmp.replace(' ', '')
+            variables.append(var)
     return variables
 
 
 def get_declared_threads(source_code, declared_variables):
     """
     Function to get a list of all declared threads
+    :param declared_variables:
     :param source_code: analyzed source code
     :return: list of Threads
     :rtype: List[Thread]
     """
     threads = []  # List of threads in code
     for line in source_code:
-        for key in line:
-            matches = re.finditer(thread_regexp, key)
-            for match in matches:
-                cur_thread_params = get_parameters(match.group(0), declared_variables)
-                threads.append(
-                    Thread(match.group(0), line[key], match.group(1), match.group(2), cur_thread_params))
+        cur_line_number = list(line.values())[0]
+        processed_line = list(line.keys())[0]
+        matches = re.finditer(thread_regexp, processed_line)
+        for match in matches:
+            cur_thread_params = get_parameters(match.group(0), declared_variables)
+            threads.append(
+                Thread(match.group(0), cur_line_number, match.group(1), match.group(2), cur_thread_params))
     return threads
 
 
@@ -94,6 +95,7 @@ def get_parameters(raw_parameters, declared_variables) -> List[Variable]:
     """
     Function to get a list of parameters from function or thread declaration
     This parameters are linked with some declared variable
+    :param declared_variables:
     :param raw_parameters: source code with parameters to parse: "(param1, param2, param3, ...)"
     :return: list of Variables
     :rtype: List[Variable]
