@@ -1,74 +1,52 @@
-# from core import parse_utils
-# from core.parse_utils import *
-# from handlers.race_condition_handler import RaceConditionHandler
-# from handlers.sql_injection_handler import SqlInjectionHandler
-#
-# if __name__ == '__main__':
-#     # text = "int param1;\nint param2;\nint param;\nint param4;\nstd::thread t1(run, param1, param)\nstd::thread t2(get, param1, param2)\nstd::thread t3(run, param1, param2)"
-#     # formatted_text = text.split("\n")
-#     # analyzer_context = AnalyzerContext(formatted_text)
-#     # output = RaceConditionHandler(analyzer_context).parse(formatted_text)
-#     text = "executeQuery(\"select * from users where name='lol'\")\nexecute(justParam)"
-#     formatted_text = text.split("\n")
-#     analyzer_context = AnalyzerContext(formatted_text)
-#     output = SqlInjectionHandler(analyzer_context).parse(formatted_text)
-
-# !/usr/bin/env python3
-# -*- coding: UTF-8 -*-
-from os import getcwd
+import re
 
 from core.UI import UI
-from core.main_code_parser import get_initial_contexts, find_contexts
+from core.main_code_parser import find_contexts
 from handlers.buffer_overflow_handler import BufferOverflowHandler
+from handlers.commands_introduction_hadler import CommandsIntroductionHandler
+from handlers.data_leak_handler import DataLeakHandler
+from handlers.data_storage_handler import DataStorageManagementHandler
 from handlers.empty_catch_handler import EmptyCatchHandler
+from handlers.file_access_handler import IncorrectFileAccessHandler
 from handlers.format_string_handler import FormatStringHandler
+from handlers.integer_overflow_handler import IntegerOverflowHandler
 from handlers.memory_leak_handler import MemoryLeakHandler
 from handlers.race_condition_handler import RaceConditionHandler
+from handlers.readers_writers_handler import ReadersWritersHandler
 from handlers.rng_handler import RandomGenHandler
 from handlers.sql_injection_handler import SQLInjectionHandler
 
-HANDLER = {
+handlers = {
     "Buffer Overflow": BufferOverflowHandler,
     "Empty Catch Block": EmptyCatchHandler,
-    # "Format String Vulnerability": FormatStringHandler,
-    # "SQL injection": SqlInjectionHandler,
-    # "Command Injection": None,
-    # "Neglect of Error Handling":		None,
-    # "Bad Data Storage Management":		None,
-    # "Data Leak":						None,
-    # "Non safe random generator algorithms": RandomGenHandler,
-    # "Integer Overflow": None,
-    # "Race Condition": RaceConditionHandler,
-    # "Memory Leak":  MemoryLeakHandler
-    # "Readers–writers problem":			None,
-    # "Locked Mutexes problem":         None
+    "Format String Vulnerability": FormatStringHandler,
+    "SQL injection": SQLInjectionHandler,
+    "Command Introduction": CommandsIntroductionHandler,
+    "Incorrect file access": IncorrectFileAccessHandler,
+    "Bad Data Storage Management": DataStorageManagementHandler,
+    "Data Leak": DataLeakHandler,
+    "Non safe random generator algorithms": RandomGenHandler,
+    "Integer Overflow": IntegerOverflowHandler,
+    "Race Condition": RaceConditionHandler,
+    "Memory Leak": MemoryLeakHandler,
+    "Readers–writers problem": ReadersWritersHandler,
 }
 
 
-def comment_remover(text):
-    import re
-    pattern = re.compile(r'//.*?$|/\*.*?\*/|\'(?:\\.|[^\\\'])*\'|"(?:\\.|[^\\"])*"', re.DOTALL | re.MULTILINE)
-    replacer = lambda match: None if match.group(0).startswith('/') else match.group(0)
-    return re.sub(pattern, replacer, text)
+def replace(match):
+    return None if match.group(0).startswith('/') else match.group(0)
 
 
 def clean_code(program):
+    pattern = re.compile(r'//.*?$|/\*.*?\*/|\'(?:\\.|[^\\\'])*\'|"(?:\\.|[^\\"])*"', re.DOTALL | re.MULTILINE)
     tmp = []
-    for line in comment_remover(open(program, 'r').read()).splitlines():
+    text = open(program, 'r').read()
+    cleaned_code = re.sub(pattern, replace, text)
+    for line in cleaned_code.splitlines():
         tmp.append(line.lstrip())
     return tmp
 
 
 if __name__ == '__main__':
-    from re import match
-
-    test = '  test with   spaces'
-    just_space = ''
-    test = test.lstrip()
-    just_space = just_space.lstrip()
-    CLEAN_CODE = lambda program: [line.lstrip() for line in comment_remover(open(program, 'r').read()).splitlines()]
-    #
-    # code = CLEAN_CODE(getcwd() + '/tests/' + 'dev_test.cpp')
-    # main_code_parser = AnalyzedCode(code)
-    ui = UI(HANDLER.keys())  #
-    ui.start_main(lambda vulnerability, program: HANDLER[vulnerability]().parse(find_contexts(CLEAN_CODE(program))))
+    ui = UI(handlers.keys())
+    ui.start_main(lambda vulnerability, program: handlers[vulnerability]().parse(find_contexts(clean_code(program))))
