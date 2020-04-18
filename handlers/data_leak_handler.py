@@ -6,12 +6,17 @@ from core.function_context import FunctionContext
 
 
 class DataLeakHandler(BaseHandler):
+
+    vulnerability_name = 'Data Leak'
+
     def __init__(self):
-        self.vulnerability_name = 'Data Leak'
         self.pattern = r'(GetLastError|SHGetFolderPath|SHGetFolderPathAndSubDir|SHGetSpecialFolderPath|GetEnvironmentStrings|GetEnvironmentVariable|\*printf|errno|getenv|strerror|perror)'
         self.output = []
 
     def parse(self, contexts: List[FunctionContext]):
+        """
+        Ищет вхождения функий, приводящих к утечке данных
+        """
         for context in contexts:
             for line in context.source_code:
                 cur_line_number = list(line.values())[0]

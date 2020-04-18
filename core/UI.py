@@ -192,10 +192,11 @@ def find_vulnerabilities(programs: tuple or list, vulnerabilities: tuple or list
         for program in programs:
             cur_code = open(program, 'r').read().splitlines()
             programs_code.append(cur_code)
+
         create_workers(len(programs), start_vulnerabilities, queue, programs_code)
         content = lambda get_program: dict(
-            [(vulnerability, handler(vulnerability, program)) for vulnerability in vulnerabilities if
-             handler(vulnerability, program)])
+            [(vulnerability, handler(vulnerability, get_program)) for vulnerability in vulnerabilities if
+             handler(vulnerability, get_program)])
         create_jobs([(program, content(program)) for program in programs if content(program)], queue)
     except Empty:
         from tkinter import messagebox

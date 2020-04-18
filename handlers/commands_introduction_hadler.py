@@ -6,12 +6,17 @@ from core.function_context import FunctionContext
 
 
 class CommandsIntroductionHandler(BaseHandler):
+
+    vulnerability_name = 'Introduction of Commands'
+
     def __init__(self):
-        self.vulnerability_name = 'Introduction of Commands'
         self.pattern = r'(system|popen|execlp|execvp|ShellExecute)'
         self.output = []
 
     def parse(self, contexts: List[FunctionContext]):
+        """
+        Ищет использование системных функций
+        """
         for context in contexts:
             for line in context.source_code:
                 cur_line_number = list(line.values())[0]

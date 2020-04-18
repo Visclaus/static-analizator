@@ -6,8 +6,10 @@ from core.function_context import FunctionContext
 
 
 class EmptyCatchHandler(BaseHandler):
+
+    vulnerability_name = 'Empty Catch Block'
+
     def __init__(self):
-        self.vulnerability_name = 'Empty Catch Block'
         self.pattern = r'.*catch\s*\(.*\)\s*\{'
         self.output = []
 
@@ -35,6 +37,8 @@ class EmptyCatchHandler(BaseHandler):
                                 is_cur_empty = True
                             else:
                                 is_cur_empty = False
+                                is_catch_found = False
+                                cur_catch_body = []
                                 break
                     else:
                         cur_catch_body.append(processed_line)

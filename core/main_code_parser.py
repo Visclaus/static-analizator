@@ -26,7 +26,7 @@ def get_initial_contexts(source_code):
     for cur_line_number, line in enumerate(source_code):
         cur_line_number += 1
         match = re.match(start_context_pattern, line)
-        open_bracer_matches = re.finditer(r'\{', line)
+        open_bracer_matches = re.finditer(r'{', line)
         close_bracer_matches = re.finditer(r'\}', line)
         for _ in open_bracer_matches:
             cur_context_open_bracers += 1
@@ -122,12 +122,12 @@ def get_parameters(raw_parameters, declared_variables) -> List[Variable]:
     :rtype: List[Variable]
     """
     tmp = re.search(r"\(.*\)", raw_parameters).group(0)[1:-1]
-    parameters_list = re.split(r",*\s", tmp)
+    parameters_list = re.split(r",", tmp)
     v_parameters_list = []
     declared_variables = declared_variables
     for index, parameter in enumerate(parameters_list):
         for var in declared_variables:
-            if parameter == var.var_name:
+            if re.sub(r'\[.*\]', '', parameter.strip()) == var.var_name:
                 v_parameters_list.append(var)
                 break
     return v_parameters_list
@@ -140,6 +140,6 @@ def get_context_parameters(raw_parameters):
         parameters_list = re.split(r",\s*", tmp)
         for parameter in parameters_list:
             # пока что распознает только простые типы параметров без указателей массивов и т.д.
-            match = re.match(r'(int|short|char|long|double|float|byte|string)\s+(\*)*([a-zA-Z0-9_]+)', parameter)
+            match = re.match(r'(int|short|char|long|double|float|byte|string)\s+(\*)*([a-zA-Z0-9_]+)\s*(\[.*\])*', parameter)
             v_parameters_list.append(FunctionVariable(match.group(1), match.group(3)))
     return v_parameters_list

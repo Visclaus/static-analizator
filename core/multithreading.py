@@ -2,8 +2,8 @@
 import threading
 
 
-def create_workers(NUMBER_OF_THREADS, work, queue, code_list):
-    for index in range(NUMBER_OF_THREADS):
+def create_workers(number_of_threads, work, queue, code_list):
+    for index in range(number_of_threads):
         t = threading.Thread(target=work, args=(queue, code_list[index]))
         t.daemon = True
         t.start()

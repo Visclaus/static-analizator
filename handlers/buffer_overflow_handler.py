@@ -7,8 +7,10 @@ from core.function_context import FunctionContext
 
 
 class BufferOverflowHandler(BaseHandler):
+
+    vulnerability_name = 'Buffer Overflow'
+
     def __init__(self):
-        self.vulnerability_name = 'Buffer Overflow'
         self.pattern = r'(strcpy|printf|strcat|memcpy|gets|sprintf|vsprintf|strncpy|scanfs|sscanf|snscanf|strlen)\((.*)\)'
         self.output = []
 

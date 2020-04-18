@@ -13,20 +13,20 @@ from handlers.integer_overflow_handler import IntegerOverflowHandler
 from handlers.memory_leak_handler import MemoryLeakHandler
 from handlers.race_condition_handler import RaceConditionHandler
 from handlers.readers_writers_handler import ReadersWritersHandler
-from handlers.rng_handler import RandomGenHandler
+from handlers.random_generator_handler import RandomGeneratorHandler
 from handlers.sql_injection_handler import SQLInjectionHandler
 
 handlers = {
-    "Buffer Overflow": BufferOverflowHandler,
-    "Empty Catch Block": EmptyCatchHandler,
+    BufferOverflowHandler.vulnerability_name: BufferOverflowHandler,
+    IntegerOverflowHandler.vulnerability_name: IntegerOverflowHandler,
+    RandomGeneratorHandler.vulnerability_name: RandomGeneratorHandler,
+    CommandsIntroductionHandler.vulnerability_name: CommandsIntroductionHandler,
+    DataLeakHandler.vulnerability_name: DataLeakHandler,
+    SQLInjectionHandler.vulnerability_name: SQLInjectionHandler,
+    EmptyCatchHandler.vulnerability_name: EmptyCatchHandler,
     "Format String Vulnerability": FormatStringHandler,
-    "SQL injection": SQLInjectionHandler,
-    "Command Introduction": CommandsIntroductionHandler,
     "Incorrect file access": IncorrectFileAccessHandler,
     "Bad Data Storage Management": DataStorageManagementHandler,
-    "Data Leak": DataLeakHandler,
-    "Non safe random generator algorithms": RandomGenHandler,
-    "Integer Overflow": IntegerOverflowHandler,
     "Race Condition": RaceConditionHandler,
     "Memory Leak": MemoryLeakHandler,
     "Readers–writers problem": ReadersWritersHandler,

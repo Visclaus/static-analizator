@@ -6,8 +6,10 @@ from core.function_context import FunctionContext
 
 
 class SQLInjectionHandler(BaseHandler):
+
+    vulnerability_name = 'SQL Injection'
+
     def __init__(self):
-        self.vulnerability_name = 'SQL Injection'
         self.pattern = r'(executeQuery|execute)(\(.*\))'
         self.output = []
 
