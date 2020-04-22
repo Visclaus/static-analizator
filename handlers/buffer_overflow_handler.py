@@ -1,5 +1,4 @@
 from typing import List
-
 from core import main_code_parser
 from core.base_handler import BaseHandler
 from core.variable import *
@@ -8,10 +7,11 @@ from core.function_context import FunctionContext
 
 class BufferOverflowHandler(BaseHandler):
 
-    vulnerability_name = 'Buffer Overflow'
+    vulnerability_name = 'Переполнение буфера'
 
     def __init__(self):
-        self.pattern = r'(strcpy|printf|strcat|memcpy|gets|sprintf|vsprintf|strncpy|scanfs|sscanf|snscanf|strlen)\((.*)\)'
+        self.pattern = r"(strcpy|printf|strcat|memcpy|gets|sprintf|vsprintf|strncpy|scanf)" \
+                       r"\(.*\)"
         self.output = []
 
     def parse(self, contexts: List[FunctionContext]):
@@ -20,18 +20,17 @@ class BufferOverflowHandler(BaseHandler):
             for line in context.source_code:
                 cur_line_number = list(line.values())[0]
                 processed_line = list(line.keys())[0]
-                matches = re.finditer(self.pattern, processed_line, re.IGNORECASE)
+                matches = re.finditer(self.pattern, processed_line)
                 for match in matches:
-                    parameters = main_code_parser.get_parameters(match.group(0), declared_variables)
-                    for parameter in parameters:
-                        declaration = parameter.full_declaration
-                        is_p = is_pointer(declaration)
-                        is_a = is_array(declaration)
-                        if parameter.var_name in list(map(lambda x: x.var_name, declared_variables)) and (is_a or is_p):
+                    used_variables = main_code_parser.get_parameters(match.group(0), declared_variables)
+                    for used_variable in used_variables:
+                        declaration = used_variable.full_declaration
+                        if is_pointer(declaration) or is_array(declaration):
                             self.output.append(
-                                f"WARNING in function {context.name}! "
-                                f"Usage of buffer \"{declaration}\" (line {parameter.line_appeared}) "
-                                f"in unsafe function {match.group(1)} (line {cur_line_number}).\n"
-                                f"It may cause overflow of the buffer!\n")
+                                f"Предупреждение в методе <{context.name}>!\n"
+                                f"Использование буфера <{declaration[:-1]}> (строка {used_variable.line_appeared}) "
+                                f"в небезопасной функции <{match.group(1)}> (строка {cur_line_number}).\n"
+                                f"Это может стать причиной переполнения буфера. "
+                                f"Убедитесь в наличии проверки этой угрозы!\n")
 
         return self.output

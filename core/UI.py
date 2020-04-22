@@ -137,7 +137,7 @@ def start_vulnerabilities(queue, cur_code):
     try:
         program, content = queue.get(block=True)
         queue.task_done()
-        vulnerabilities_form = Form(program + ' Vulnerabilities', '600x750', FONT)
+        vulnerabilities_form = Form(program + ' Vulnerabilities', '1200x780', FONT)
 
         l1 = Label(vulnerabilities_form.root, text='Vulnerabilities found:', font=vulnerabilities_form.font, width=28,
                    anchor='w')

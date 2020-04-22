@@ -17,7 +17,12 @@ def find_contexts(source_code):
 
 def get_initial_contexts(source_code):
     # пока что распознает только простые типы параметров и возвращаемых значений без указателей массивов и т.д.
-    start_context_pattern = r'(int|short|char|long|double|float|byte|void)\s+([a-zA-Z0-9_]+)\s*(\(.*\))'
+    start_context_pattern = \
+        r"(char|unsigned char|signed char|int|byte|unsigned int|signed int|short int|unsigned short int|" \
+        r"signed short int|long int|singed long int|unsigned long int|long long int|signed long long int|" \
+        r"unsigned long long int|float|double|long double|wchar_t|short|long)\s+" \
+        r"([a-zA-Z0-9_]+)\s*" \
+        r"(\(.*\))"
     end_context_pattern = r'}'
     found_contexts = []
     cur_context = None
@@ -58,7 +63,7 @@ def get_declared_variables(source_code):
         r"^\s*" \
         r"(extern\s+)?" \
         r"(const\s+)?" \
-        r"(char|unsigned char|signed char|int" \
+        r"(char|unsigned char|signed char|int|byte|short|long" \
         r"|unsigned int|signed int|short int|unsigned short int|signed short int|long int|singed long int" \
         r"|unsigned long int|long long int|signed long long int|unsigned long long int|float|double|long double|wchar_t)\s+" \
         r"(\*+)?" \
@@ -114,8 +119,8 @@ def get_declared_threads(source_code, declared_variables):
 
 def get_parameters(raw_parameters, declared_variables) -> List[Variable]:
     """
-    Function to get a list of parameters from function or thread declaration
-    This parameters are linked with some declared variable
+    Function to get a list of parameters from called function or thread declaration
+    This parameters are linked with declared variable
     :param declared_variables:
     :param raw_parameters: source code with parameters to parse: "(param1, param2, param3, ...)"
     :return: list of Variables
@@ -124,7 +129,6 @@ def get_parameters(raw_parameters, declared_variables) -> List[Variable]:
     tmp = re.search(r"\(.*\)", raw_parameters).group(0)[1:-1]
     parameters_list = re.split(r",", tmp)
     v_parameters_list = []
-    declared_variables = declared_variables
     for index, parameter in enumerate(parameters_list):
         for var in declared_variables:
             if re.sub(r'\[.*\]', '', parameter.strip()) == var.var_name:
@@ -134,12 +138,19 @@ def get_parameters(raw_parameters, declared_variables) -> List[Variable]:
 
 
 def get_context_parameters(raw_parameters):
+    reg_exp = \
+        r"(char|unsigned char|signed char|int|byte|unsigned int|signed int|short int|unsigned short int|" \
+        r"signed short int|long int|singed long int|unsigned long int|long long int|signed long long int|" \
+        r"unsigned long long int|float|double|long double|wchar_t|short|long)\s+" \
+        r"(\*)*" \
+        r"([a-zA-Z0-9_]+)\s*" \
+        r"(\[.*\])*"
     tmp = re.search(r"\(.*\)", raw_parameters).group(0)[1:-1]
     v_parameters_list = []
     if tmp != '':
         parameters_list = re.split(r",\s*", tmp)
         for parameter in parameters_list:
             # пока что распознает только простые типы параметров без указателей массивов и т.д.
-            match = re.match(r'(int|short|char|long|double|float|byte|string)\s+(\*)*([a-zA-Z0-9_]+)\s*(\[.*\])*', parameter)
+            match = re.match(reg_exp, parameter)
             v_parameters_list.append(FunctionVariable(match.group(1), match.group(3)))
     return v_parameters_list
