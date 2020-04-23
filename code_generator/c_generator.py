@@ -8,7 +8,21 @@ func_types = ["char", "unsigned char", "signed char", "int", "byte", "unsigned i
               "long long int", "signed long long int", "unsigned long long int", "float", "double", "long double",
               "wchar_t", "void"]
 
+sample_words = ["Lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do", "eiusmod",
+                "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua", "Ut", "enim", "ad", "minim",
+                "veniam", "quis", "nostrud", "exercitation", "ullamco", "laboris", "nisi", "ut", "aliquip", "ex", "ea",
+                "commodo", "consequat.", "Duis", "aute", "irure", "dolor", "in", "reprehenderit", "in", "voluptate",
+                "velit", "esse", "cillum", "dolore", "eu", "fugiat", "nulla", "pariatur.", "Excepteur", "sint",
+                "occaecat", "cupidatat", "non", "proident,", "sunt", "in", "culpa", "qui", "officia", "deserunt",
+                "mollit", "anim", "id", "est", "laborum."
+                ]
+cond = ["==", "<", ">", "<=", ">=", "!="]
 types = func_types[:-1]
+
+
+# возвращает рандомный элемент указанного множества
+def r_v(params):
+    return params[rng(0, len(params) - 1)]
 
 
 # генерирует n неповторяющихся значений от min до max
@@ -22,42 +36,44 @@ def gen_n_rands(n, min_v, max_v):
     return rands
 
 
+# генерирует рандомный cout
+def gen_cout(indent, params):
+    sample_text = ""
+    param = r_v(params)
+    for _ in range(3):
+        sample_text += r_v(sample_words) + " "
+    code = indent + "cout<<\"" + sample_text + "\"<<" + param + ";\n"
+    return code
+
+
+# генерирует if statement с рандомным содержанием
 def gen_cond(indent, params):
-    code = indent + "if(file.isopen()) {\n" + \
-           indent + "\tcout << \"Hello World\" << endl;\n" + \
-           indent + "\tprintf(\"random_code\");\n" + \
-           indent + "}\n"
+    own_indent = "\t"
+    declaration = indent + "if(" + r_v(params) + " " + r_v(cond) + " " + str(rng(0, 500)) + ") {\n"
+    body = ""
+    for index in range(1):
+        body += r_v(random_code_generators)(own_indent + indent, params)
+    code = declaration + body + indent + "}\n"
     return code
 
 
+# генерирует блок try-catch с рандомным содержанием
 def gen_try_catch(indent, params):
-    code = indent + "try {\n" + \
-           indent + "\tmd = GetNetworkResource();\n" + \
-           indent + "\tprintf(\"random_code\");\n" + \
-           indent + "}\n" + \
-           indent + "catch (const networkIOException& e) {\n" + \
-           indent + "\tcerr << e.what();\n" + \
-           indent + "}\n"
+    own_indent = "\t"
+    try_declaration = indent + "try {\n"
+    try_body = ""
+    for index in range(1):
+        try_body += r_v(random_code_generators)(own_indent + indent, params)
+    catch_declaration = indent + "catch (Exception_" + str(rng(1, 20)) + " err) {\n"
+    catch_body = ""
+    if rng(0, 1) == 1:
+        for index in range(1):
+            catch_body += r_v(random_code_generators)(own_indent + indent, params)
+    code = try_declaration + try_body + indent + "}\n" + catch_declaration + catch_body + indent + "}\n"
     return code
 
 
-def gen_try_empty_catch(indent, params):
-    code = indent + "try {\n" + \
-           indent + "\tmd = GetNetworkResource();\n" + \
-           indent + "\tprintf(\"random_code\");\n" + \
-           indent + "}\n" + \
-           indent + "catch (const networkIOException& e) {\n" + \
-           indent + "\n" + \
-           indent + "}\n" + \
-           indent + "catch (const networkIOException& e) {\n" + \
-           indent + "\n" + \
-           indent + "}\n" + \
-           indent + "catch (const networkIOException& e) {\n" + \
-           indent + "\tcerr << e.what();\n" + \
-           indent + "}\n"
-    return code
-
-
+# генерирует ошибку переполнения буфера
 def gen_buff_error(indent, params):
     funcs = [
         {"strcpy(": 2},
@@ -106,7 +122,7 @@ def gen_storage_error(indent, file, params):
 
 
 # сюда можно добавить любой из объявленных генераторов
-random_code_generators = [gen_cond, gen_try_catch, gen_try_empty_catch, gen_buff_error]
+random_code_generators = [gen_cout, gen_cond, gen_try_catch, gen_buff_error]
 
 
 class CodeGenerator:
@@ -130,7 +146,6 @@ class CodeGenerator:
             func_params.append(param_type + " " + param_name)
 
         file.write(func_type + " " + func_name + "(" + ", ".join(func_params) + ") {\n")
-
         # Генерация переменных
         generated_vars = []
         name, code = gen_buffer(indent, generated_vars)
@@ -140,7 +155,7 @@ class CodeGenerator:
             name, code = gen_variables_funcs[rng(0, len(gen_variables_funcs) - 1)](indent, generated_vars)
             generated_vars.append(name)
             file.write(code)
-
+        file.write(gen_cout(indent, generated_vars))
         # Генерация произвольного кода
         for index in range(rng(2, 5)):
             file.write(random_code_generators[rng(0, len(random_code_generators) - 1)](indent, generated_vars))
