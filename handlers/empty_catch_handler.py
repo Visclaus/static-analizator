@@ -1,48 +1,58 @@
 import re
 from typing import List
-
 from core.base_handler import BaseHandler
 from core.function_context import FunctionContext
 
 
-class EmptyCatchHandler(BaseHandler):
+def is_empty(catch_body: List[str]):
+    for line in catch_body:
+        tmp = line.replace("", "")
+        if tmp == "": continue
+        else: return False
+    return True
 
-    vulnerability_name = 'Empty Catch Block'
+
+class EmptyCatchHandler(BaseHandler):
+    vulnerability_name = 'Пренебрежение обработкой ошибок'
 
     def __init__(self):
-        self.pattern = r'.*catch\s*\(.*\)\s*\{'
+        self.pattern = r'catch\s*' \
+                       r'\(.*\)\s*\{'
         self.output = []
+
+    def analyze_catch(self, cur_line_number, context):
+        body = []
+        close_br = 0
+        open_br = 1
+        dict_lines = context.source_code
+        while cur_line_number < len(dict_lines):
+            cur_line = list(dict_lines[cur_line_number].keys())[0]
+            if re.match(self.pattern, cur_line) is not None:
+                return self.analyze_catch(cur_line_number + 1, context)
+
+            if re.match(r'}', cur_line) is None:
+                if re.match(r'.*{', cur_line) is not None:
+                    open_br += 1
+                body.append(cur_line)
+
+            if re.match(r'}', cur_line):
+                close_br += 1
+                if open_br != close_br:
+                    body.append(cur_line)
+                elif is_empty(body):
+                    self.output.append(f"Предупреждение в методе <{context.name}>!\n"
+                                       f"Отстутсвует обработка исключения или ошибки!  (строка {cur_line_number - len(body)})\n")
+                    return cur_line_number
+
+            cur_line_number += 1
 
     def parse(self, contexts: List[FunctionContext]):
         for context in contexts:
-            is_catch_found = False
-            cur_catch_body = []
-            is_cur_empty = False
-            v_line_found = 0
-            for line in context.source_code:
-                cur_line_number = list(line.values())[0]
-                processed_line = list(line.keys())[0]
-                if is_cur_empty:
-                    is_cur_empty = False
-                    is_catch_found = False
-                    cur_catch_body = []
-                    self.output.append(f"WARNING in function {context.name}! (line {v_line_found}) "
-                                       f"No handling of exception! Ignoring an exception can cause the program to "
-                                       f"overlook unexpected states and conditions\n")
-
-                if is_catch_found:
-                    if re.match(r'\}', processed_line) is not None:
-                        for catch_line in cur_catch_body:
-                            if catch_line.replace(" ", "") == "":
-                                is_cur_empty = True
-                            else:
-                                is_cur_empty = False
-                                is_catch_found = False
-                                cur_catch_body = []
-                                break
-                    else:
-                        cur_catch_body.append(processed_line)
-                if re.match(self.pattern, processed_line, re.IGNORECASE) is not None:
-                    v_line_found = cur_line_number
-                    is_catch_found = True
+            index = 0
+            while index < len(context.source_code):
+                processed_line = list(context.source_code[index].keys())[0]
+                if re.match(self.pattern, processed_line) is not None:
+                    index = self.analyze_catch(index + 1, context)
+                else:
+                    index += 1
         return self.output

@@ -1,6 +1,5 @@
 import re
 from typing import List
-
 from core.base_handler import BaseHandler
 from core.function_context import FunctionContext
 
@@ -40,7 +39,7 @@ class DataLeakHandler(BaseHandler):
             for line in context.source_code:
                 cur_line_number = list(line.values())[0]
                 processed_line = list(line.keys())[0]
-                matches = re.finditer(self.pattern, processed_line, re.IGNORECASE)
+                matches = re.finditer(self.pattern, processed_line)
                 for match in matches:
                     if match.group(0) == "errno":
                         self.output.append(f"Предупреждение в методе <{context.name}>!\n"

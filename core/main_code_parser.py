@@ -32,7 +32,7 @@ def get_initial_contexts(source_code):
         cur_line_number += 1
         match = re.match(start_context_pattern, line)
         open_bracer_matches = re.finditer(r'{', line)
-        close_bracer_matches = re.finditer(r'\}', line)
+        close_bracer_matches = re.finditer(r'}', line)
         for _ in open_bracer_matches:
             cur_context_open_bracers += 1
         for _ in close_bracer_matches:
