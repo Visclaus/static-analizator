@@ -9,6 +9,25 @@ class BufferOverflowHandler(BaseHandler):
 
     vulnerability_name = 'Переполнение буфера'
 
+    """
+    - char * strcpy ( char * destination, const char * source ); - Копирует строку <source> в буфер <destination>.
+    
+    - int printf ( const char * format, ... ); - Выводит строку указанную в формате в стандартный поток вывода.
+    
+    - char * strcat ( char * destination, const char * source ); - Добавляет к строке <destination> копию <source>
+    
+    - void * memcpy ( void * destination, const void * source, size_t num ); - копирует <num> байт из <source> в 
+      <destination>
+      
+    - char * gets ( char * str ); - читает символы из потока ввода и записывает их в <str>
+    
+    - int sprintf ( char * str, const char * format, ... ); - аналогично <printf>, но вывод происходит в буфер <str>
+    
+    - int vsprintf (char * s, const char * format, va_list arg ); - аналогично <sprintf>, но принимает только один <arg>
+    
+    - char * strncpy ( char * destination, const char * source, size_t num ); - <strcpy>, но копирует только  <num> байт
+    """
+
     def __init__(self):
         self.pattern = r"(strcpy|printf|strcat|memcpy|gets|sprintf|vsprintf|strncpy|scanf)" \
                        r"\(.*\)"

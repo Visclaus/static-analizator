@@ -28,6 +28,8 @@ def r_v(params):
 # генерирует n неповторяющихся значений от min до max
 def gen_n_rands(n, min_v, max_v):
     rands = []
+    if n == 0:
+        return rands
     for index in range(n):
         cur_rng = rng(min_v, max_v)
         while cur_rng in rands:
@@ -80,7 +82,7 @@ def gen_try_catch(indent, params):
 
 
 # генерирует ошибку переполнения буфера
-def gen_buff_error(indent, params):
+def buff_error(indent, params):
     funcs = [
         {"strcpy(": 2},
         {"printf(Overflow %s and %s, ": 2},
@@ -92,7 +94,7 @@ def gen_buff_error(indent, params):
         {"strncpy(": 3},
         {"scanf(%s, ": 1},
     ]
-    cur_func_dict = funcs[rng(0, len(funcs) - 1)]
+    cur_func_dict = r_v(funcs)
     cur_func = list(cur_func_dict.keys())[0]
     n = list(cur_func_dict.values())[0]
     chosen_param_list = [params[param] for param in gen_n_rands(n, 0, len(params) - 1)]
@@ -100,21 +102,44 @@ def gen_buff_error(indent, params):
     return code
 
 
-def gen_cintro_error(indent, file, params):
-    funcs = ["system", "popen", "execlp", "execvp", "ShellExecute"]
-    file.write(
-        indent + funcs[random.randint(0, len(funcs) - 1)] + "(" + params[random.randint(0, len(params) - 1)] + ", " +
-        params[
-            random.randint(0, len(params) - 1)] + ");\n")
+# генерирует ошибку встраивания команд
+def c_intr_error(indent, params):
+    funcs = [
+        {"system(": 1},
+        {"popen(": 2},
+        {"execlp(": 3},
+        {"execvp(": 2},
+        {"ShellExecute(": 6},
+    ]
+    cur_func_dict = r_v(funcs)
+    cur_func = list(cur_func_dict.keys())[0]
+    n = list(cur_func_dict.values())[0]
+    chosen_param_list = [params[param] for param in gen_n_rands(n, 0, len(params) - 1)]
+    code = indent + cur_func + ", ".join(chosen_param_list) + ");\n"
+    return code
 
 
-def gen_data_leak(indent, file, params):
-    funcs = ["GetLastError", "SHGetFolderPath", "SHGetFolderPathAndSubDir", "SHGetSpecialFolderPath",
-             "GetEnvironmentStrings", "GetEnvironmentVariable", "*printf", "errno", "getenv", "strerror", "perror"]
-    file.write(
-        indent + funcs[random.randint(0, len(funcs) - 1)] + "(" + params[random.randint(0, len(params) - 1)] + ", " +
-        params[
-            random.randint(0, len(params) - 1)] + ");\n")
+# генерирует ошибку утечки информации
+def data_leak(indent, params):
+    funcs = [
+        {"GetLastError(": 0},
+        {"SHGetFolderPath(": 5},
+        {"GetEnvironmentStrings(": 0},
+        {"GetEnvironmentVariable(": 1},
+        {"errno": 0},
+        {"getenv(": 1},
+        {"strerror(": 1},
+        {"perror(": 1}
+    ]
+    cur_func_dict = r_v(funcs)
+    cur_func = list(cur_func_dict.keys())[0]
+    if cur_func == "errno":
+        code = indent + "cout<<" + cur_func + ";\n"
+        return code
+    n = list(cur_func_dict.values())[0]
+    chosen_param_list = [params[param] for param in gen_n_rands(n, 0, len(params) - 1)]
+    code = indent + cur_func + ", ".join(chosen_param_list) + ");\n"
+    return code
 
 
 def gen_storage_error(indent, file, params):
@@ -128,7 +153,7 @@ def gen_storage_error(indent, file, params):
 
 
 # сюда можно добавить любой из объявленных генераторов
-random_code_generators = [gen_cout, gen_cond, gen_try_catch, gen_buff_error]
+random_code_generators = [gen_cout, gen_cond, gen_try_catch, buff_error, c_intr_error, data_leak]
 
 
 class CodeGenerator:
@@ -170,7 +195,7 @@ class CodeGenerator:
         if vulnerability == "buff":
             generated_vars.append(name)
             file.write(code)
-            file.write(gen_buff_error(indent, generated_vars))
+            file.write(buff_error(indent, generated_vars))
 
         # Генерация произвольного кода
         for index in range(rng(2, 5)):
