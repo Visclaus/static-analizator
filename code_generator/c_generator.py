@@ -48,27 +48,33 @@ def gen_cout(indent, params):
 
 # генерирует if statement с рандомным содержанием
 def gen_cond(indent, params):
+    cur_generators = random_code_generators
+    cur_generators.remove(gen_cond)
     own_indent = "\t"
     declaration = indent + "if(" + r_v(params) + " " + r_v(cond) + " " + str(rng(0, 500)) + ") {\n"
     body = ""
     for index in range(1):
-        body += r_v(random_code_generators)(own_indent + indent, params)
+        body += r_v(cur_generators)(own_indent + indent, params)
     code = declaration + body + indent + "}\n"
     return code
 
 
 # генерирует блок try-catch с рандомным содержанием
 def gen_try_catch(indent, params):
+    cur_generators = random_code_generators
+    cur_generators.remove(gen_try_catch)
     own_indent = "\t"
     try_declaration = indent + "try {\n"
     try_body = ""
     for index in range(1):
-        try_body += r_v(random_code_generators)(own_indent + indent, params)
+        try_body += r_v(cur_generators)(own_indent + indent, params)
     catch_declaration = indent + "catch (Exception_" + str(rng(1, 20)) + " err) {\n"
     catch_body = ""
     if rng(0, 1) == 1:
         for index in range(1):
-            catch_body += r_v(random_code_generators)(own_indent + indent, params)
+            catch_body += r_v(cur_generators)(own_indent + indent, params)
+    else:
+        catch_body = "\n"
     code = try_declaration + try_body + indent + "}\n" + catch_declaration + catch_body + indent + "}\n"
     return code
 
