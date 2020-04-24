@@ -16,45 +16,46 @@ def find_contexts(source_code):
 
 
 def get_initial_contexts(source_code):
-    # пока что распознает только простые типы параметров и возвращаемых значений без указателей массивов и т.д.
-    start_context_pattern = \
+    f_decl = \
         r"(char|unsigned char|signed char|int|byte|unsigned int|signed int|short int|unsigned short int|" \
         r"signed short int|long int|singed long int|unsigned long int|long long int|signed long long int|" \
-        r"unsigned long long int|float|double|long double|wchar_t|short|long)\s+" \
-        r"([a-zA-Z0-9_]+)\s*" \
+        r"unsigned long long int|float|double|long double|wchar_t|short|long|void)\s*" \
+        r"(\**\s+)?" \
+        r"(\w+)\s*" \
         r"(\(.*\))"
-    end_context_pattern = r'}'
     found_contexts = []
     cur_context = None
-    cur_context_open_bracers = 0
-    cur_context_close_bracers = 0
+    open_br = 0
+    close_br = 0
     for cur_line_number, line in enumerate(source_code):
         cur_line_number += 1
-        match = re.match(start_context_pattern, line)
-        open_bracer_matches = re.finditer(r'{', line)
-        close_bracer_matches = re.finditer(r'}', line)
-        for _ in open_bracer_matches:
-            cur_context_open_bracers += 1
-        for _ in close_bracer_matches:
-            cur_context_close_bracers += 1
+        match = re.match(f_decl, line)
         if match is not None:
+            open_br += 1
             cur_context = FunctionContext()
-            cur_context.return_type = match.group(1)
-            cur_context.name = match.group(2)
+            cur_context.return_type = match.group(1) + match.group(2).rstrip() if match.group(2) is not None else match.group(1)
+            cur_context.name = match.group(3)
             cur_context.parameters = get_context_parameters(line)
             cur_context.source_code.append({line: cur_line_number})
+
         elif cur_context is not None:
-            if re.match(end_context_pattern, line) is None:
+
+            if re.match(r'}', line) is None:
+                if re.match(r'.*{', line) is not None:
+                    open_br += 1
                 cur_context.source_code.append({line: cur_line_number})
-            if re.match(end_context_pattern, line) and cur_context_open_bracers != cur_context_close_bracers:
-                cur_context.source_code.append({line: cur_line_number})
-            elif cur_context_open_bracers == cur_context_close_bracers:
-                cur_context.source_code.append({line: cur_line_number})
-                found_contexts.append(cur_context)
-                cur_context = None
-                cur_context_open_bracers = 0
-                cur_context_close_bracers = 0
-                continue
+
+            if re.match(r'}', line):
+                close_br += 1
+                if open_br != close_br:
+                    cur_context.source_code.append({line: cur_line_number})
+
+                elif open_br == close_br:
+                    cur_context.source_code.append({line: cur_line_number})
+                    found_contexts.append(cur_context)
+                    cur_context = None
+                    open_br = 0
+                    close_br = 0
     return found_contexts
 
 
