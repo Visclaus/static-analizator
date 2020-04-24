@@ -25,7 +25,7 @@ handlers = {
     SQLInjectionHandler.vulnerability_name: SQLInjectionHandler,
     EmptyCatchHandler.vulnerability_name: EmptyCatchHandler,
     "Format String Vulnerability": FormatStringHandler,
-    "Incorrect file access": IncorrectFileAccessHandler,
+    IncorrectFileAccessHandler.vulnerability_name: IncorrectFileAccessHandler,
     "Bad Data Storage Management": DataStorageManagementHandler,
     "Race Condition": RaceConditionHandler,
     "Memory Leak": MemoryLeakHandler,

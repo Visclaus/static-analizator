@@ -11,5 +11,12 @@ sample_words = ["Lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipis
                 "occaecat", "cupidatat", "non", "proident,", "sunt", "in", "culpa", "qui", "officia", "deserunt",
                 "mollit", "anim", "id", "est", "laborum."
                 ]
-types = func_types[:-1]
+
+types = ["char", "unsigned char", "signed char", "int", "byte", "unsigned int", "signed int", "short int",
+         "unsigned short int", "signed short int", "long int", "singed long int", "unsigned long int",
+         "long long int", "signed long long int", "unsigned long long int", "float", "double", "long double",
+         "wchar_t"]
+
+stream_types = ["ifstream", "ofstream"]
+
 cond = ["==", "<", ">", "<=", ">=", "!="]

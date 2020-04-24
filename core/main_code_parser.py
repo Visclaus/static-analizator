@@ -63,7 +63,7 @@ def get_declared_variables(source_code):
         r"^\s*" \
         r"(extern\s+)?" \
         r"(const\s+)?" \
-        r"(char|unsigned char|signed char|int|byte|short|long" \
+        r"(char|unsigned char|signed char|int|byte|short|long|ofstream|ifstream" \
         r"|unsigned int|signed int|short int|unsigned short int|signed short int|long int|singed long int" \
         r"|unsigned long int|long long int|signed long long int|unsigned long long int|float|double|long double|wchar_t)\s+" \
         r"(\*+)?" \
@@ -150,7 +150,6 @@ def get_context_parameters(raw_parameters):
     if tmp != '':
         parameters_list = re.split(r",\s*", tmp)
         for parameter in parameters_list:
-            # пока что распознает только простые типы параметров без указателей массивов и т.д.
             match = re.match(reg_exp, parameter)
             v_parameters_list.append(FunctionVariable(match.group(1), match.group(3)))
     return v_parameters_list

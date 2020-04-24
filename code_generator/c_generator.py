@@ -2,7 +2,8 @@ import random
 from code_generator.var_genetor import *
 from code_generator.constants import *
 
-gen_variables_funcs = [gen_var, gen_var_with_value, gen_buffer, gen_pointer]
+v_funcs = [gen_var, gen_var_with_value, gen_buffer, gen_pointer, gen_stream]
+p_funcs = [gen_var, gen_pointer]
 
 
 # генерирует рандомный cout
@@ -128,8 +129,29 @@ def storage_error(indent, params):
     return code
 
 
+def file_error(indent, params):
+    funcs = [
+        {"mkdir(": 1},
+        {"mktemp(": 1},
+        {"rmdir(": 1},
+        {"chmod(": 2},
+        {"utime(": 2},
+        {"open": 0}
+    ]
+    cur_func_dict = r_v(funcs)
+    cur_func = list(cur_func_dict.keys())[0]
+    n = list(cur_func_dict.values())[0]
+    if cur_func == "open":
+        code = indent + r_v(params) + ".open(\"D://" + r_v(sample_words) + "\");\n"
+        return code
+    chosen_param_list = [params[param] for param in gen_n_rands(n, 0, len(params) - 1)]
+    code = indent + cur_func + ", ".join(chosen_param_list) + ");\n"
+    return code
+
+
 # сюда можно добавить любой из объявленных генераторов
-random_code_generators = [gen_cout, gen_cond, gen_try_catch, buff_error, c_intr_error, data_leak, storage_error]
+random_code_generators = [gen_cout, gen_cond, gen_try_catch, buff_error, c_intr_error, data_leak, storage_error,
+                          file_error]
 
 
 class CodeGenerator:
@@ -143,17 +165,14 @@ class CodeGenerator:
         func_name = "function_" + str(rng(0, 20))
         generated_vars = []
         func_params = []
-        gen_params_funcs = gen_variables_funcs.copy()
-        gen_params_funcs.remove(gen_var_with_value)
-        gen_params_funcs.remove(gen_buffer)
         for index in range(rng(1, 4)):
-            func_params.append(r_v(gen_params_funcs)(indent, generated_vars))
+            func_params.append(r_v(p_funcs)(indent, generated_vars))
         file.write(func_type + " " + func_name + "(" + ", ".join([param[1:-2] for param in func_params]) + ") {\n")
 
         # Генерация переменных
         file.write(gen_buffer(indent, generated_vars))
         for index in range(rng(6, 7)):
-            code = r_v(gen_variables_funcs)(indent, generated_vars)
+            code = r_v(v_funcs)(indent, generated_vars)
             file.write(code)
         file.write(gen_cout(indent, generated_vars))
 

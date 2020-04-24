@@ -43,3 +43,13 @@ def gen_var_with_value(indent, generated_vars: List[str]):
     generated_vars.append(var_name)
     code = indent + var_type + " " + var_name + " = " + str(rng(1, 30)) + ";\n"
     return code
+
+
+def gen_stream(indent, generated_vars: List[str]):
+    var_type = r_v(stream_types)
+    var_name = "var_" + str(rng(1, max_val))
+    while var_name in generated_vars:
+        var_name = "var_" + str(rng(1, max_val))
+    generated_vars.append(var_name)
+    code = indent + var_type + " " + var_name + ".open(\"D://" + r_v(sample_words) + "\");\n"
+    return code
