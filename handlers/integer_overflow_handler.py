@@ -1,22 +1,15 @@
 import re
-from collections import namedtuple
 from typing import List
 
 from core.base_handler import BaseHandler
 from core.function_context import FunctionContext
+from utils import constants
 
 
 class IntegerOverflowHandler(BaseHandler):
     vulnerability_name = 'Переполнение целых чисел'
-    Limit = namedtuple('Limit', 'min max')
-    Variable = namedtuple('Variable', 'type value')
-    int_types = ["int", "short", "char", "long", "byte"]
+
     regex_arithmetic = r"^\s*([\w:<>]*)\s*=\s*([\w:<>]+|\d)\s*(\+|\-|\*|\/)?\s*([\w:<>]+|\d).*;"
-    limits = {'int': Limit(-2 ** 31, 2 ** 31 - 1),
-              'byte': Limit(-2 ** 15, 2 ** 15 - 1),
-              'short': Limit(-2 ** 15, 2 ** 15 - 1),
-              'char': Limit(-2 ** 7, 2 ** 7 - 1),
-              'long': Limit(-2 ** 63, 2 ** 63 - 1)}
 
     def __init__(self):
         self.output = []
@@ -30,7 +23,7 @@ class IntegerOverflowHandler(BaseHandler):
             declared_vars = context.variables.copy()
             int_vars = []
             for i in declared_vars:
-                if i.var_type in self.int_types:
+                if i.var_type in constants.int_types:
                     int_vars.append(i)
 
             for line in context.source_code:
@@ -64,10 +57,12 @@ class IntegerOverflowHandler(BaseHandler):
                             k.value = tmp
                             tmp_var = k
                     try:
-                        assert (self.limits[tmp_var.var_type].min <= int(tmp_var.value) <=
-                                self.limits[tmp_var.var_type].max)
+                        assert (constants.integer_limits[tmp_var.var_type].min <= int(tmp_var.value) <=
+                                constants.integer_limits[tmp_var.var_type].max)
                     except AssertionError:
                         error_details = ""
                         self.output.append(f"Угроза в методе {context.name}!\n"
-                                           f"Переполнение целых чисел ({cur_line_number}) у переменной {error_details}\n")
+                                           f"Переполнение челочисленной переменной <{tmp_var.var_name}> типа "
+                                           f"<{tmp_var.var_type}> (строка {cur_line_number}) "
+                                           f"Выход за границы типа!")
         return self.output

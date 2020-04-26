@@ -1,6 +1,7 @@
-import random
+import re
+
 from code_generator.var_genetor import *
-from code_generator.constants import *
+from utils.constants import *
 
 v_funcs = [gen_var, gen_var_with_value, gen_buffer, gen_pointer, gen_stream]
 p_funcs = [gen_var, gen_pointer]
@@ -32,7 +33,6 @@ def gen_cond(indent, params):
 # генерирует блок try-catch с рандомным содержанием
 def gen_try_catch(indent, params):
     cur_generators = random_code_generators.copy()
-    # cur_generators.remove(gen_try_catch)
     own_indent = "\t"
     try_declaration = indent + "try {\n"
     try_body = ""
@@ -155,9 +155,25 @@ def format_error(indent, params):
     return code
 
 
+def iover_error(indent, params):
+    cur_generators = random_code_generators.copy()
+    own_indent = "\t"
+    cur_generators.remove(iover_error)
+    chosen_var_list = []
+    for _ in range(3):
+        chosen_var_list.append(gen_integer_with_value(indent, params))
+    sample_code = ""
+    for index in range(1):
+        sample_code += r_v(cur_generators)(indent, params)
+    code = "".join(chosen_var_list) + sample_code + indent + chosen_var_list[0].split()[1] + " = " + \
+           chosen_var_list[1].split()[1] + \
+           " + " + chosen_var_list[2].split()[1] + ";\n"
+    return code
+
+
 # сюда можно добавить любой из объявленных генераторов
 random_code_generators = [gen_cout, gen_cond, gen_try_catch, buff_error, c_intr_error, data_leak, storage_error,
-                          file_error, format_error]
+                          file_error, format_error, iover_error]
 
 
 class CodeGenerator:

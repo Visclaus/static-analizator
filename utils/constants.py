@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 func_types = ["char", "unsigned char", "signed char", "int", "byte", "unsigned int", "signed int", "short int",
               "unsigned short int", "signed short int", "long int", "singed long int", "unsigned long int",
               "long long int", "signed long long int", "unsigned long long int", "float", "double", "long double",
@@ -19,4 +21,14 @@ types = ["char", "unsigned char", "signed char", "int", "byte", "unsigned int", 
 
 stream_types = ["ifstream", "ofstream"]
 
+int_types = ["int", "short", "char", "long", "byte"]
+
 cond = ["==", "<", ">", "<=", ">=", "!="]
+
+Limit = namedtuple('Limit', 'min max')
+integer_limits = {'int': Limit(-2 ** 31, 2 ** 31 - 1),
+                  'byte': Limit(-2 ** 15, 2 ** 15 - 1),
+                  'short': Limit(-2 ** 15, 2 ** 15 - 1),
+                  'char': Limit(-2 ** 7, 2 ** 7 - 1),
+                  'long': Limit(-2 ** 63, 2 ** 63 - 1)}
+
