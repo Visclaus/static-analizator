@@ -12,7 +12,7 @@ from core.select_utils import *
 FONT = ("Helvetica", 12)
 BUTTON_WIDTH = 13
 BUTTON_HEIGHT = 1
-MAIN_COLOR = "#E0E0E0"
+MAIN_COLOR = "white"
 
 
 def fill_listbox(listbox: Listbox, items: tuple or list):
@@ -35,6 +35,7 @@ def write_to_text(text_field: Text, text: str or list or tuple, option: str = NO
 class Form(object):
     def __init__(self, title: str, geometry: str, font: (str, int)):
         self.root = Tk()
+        self.root.iconbitmap(os.getcwd() + "\\resources\\icon.ico")
         self.root.configure(bg=MAIN_COLOR)
         self.root.update()
         self.root.title(title)
@@ -111,9 +112,9 @@ def show_vulns(queue):
         program, content, program_code = queue.get(block=True)
         queue.task_done()
 
-        v_form = Form(program + ' - анализ', '1200x700', FONT)
+        v_form = Form(program + ' - анализ', '1100x700+410+180', FONT)
 
-        code_frame = Frame(v_form.root, bg=MAIN_COLOR, width=1100, height=400)
+        code_frame = Frame(v_form.root, bg=MAIN_COLOR, width=1100, height=400, borderwidth=2)
         vuln_frame = Frame(v_form.root,
                            relief="ridge", bg=MAIN_COLOR, width=300, height=270)
         loc_frame = Frame(v_form.root,
@@ -125,7 +126,7 @@ def show_vulns(queue):
                       anchor='w', bg=MAIN_COLOR)
 
         code_extra_frame = Frame(code_frame, bg=MAIN_COLOR)
-        code_lb = create_code_listbox(code_extra_frame, EXTENDED, 0, font=("Helvetica", 11))
+        code_lb = create_code_listbox(code_extra_frame, EXTENDED, 1, font=("Helvetica", 11), bg="#EEEDF1")
         create_scroll_box(code_extra_frame, code_lb, VERTICAL)
 
         pr_len = len(program)
@@ -134,14 +135,15 @@ def show_vulns(queue):
         for index, line in enumerate(program_code):
             cur_rank = get_rank(index + 1)
             cur_indent = 2 + (max_rank - cur_rank) * 2
-            tmp_list.append(f"{index + 1}" + ' '*cur_indent + "|  " + line.replace("\t", "   "))
+            tmp_list.append(f"{index + 1}" + ' ' * cur_indent + "|  " + line.replace("\t", "   "))
         fill_listbox(code_lb, tmp_list)
 
         code_extra_frame.grid(row=1, column=0, columnspan=2, sticky=E, padx=10, pady=10)
         code_lbl.grid(row=0, column=0, sticky=NW, padx=10, pady=(5, 0))
 
         loc_extra_frame = Frame(loc_frame, bg=MAIN_COLOR)
-        where_tb = Text(loc_extra_frame, borderwidth=0, width=80, height=15, relief="groove", wrap=WORD, state='disabled', font=FONT)
+        where_tb = Text(loc_extra_frame, borderwidth=1, width=80, height=15, relief="groove", wrap=WORD,
+                        state='disabled', font=FONT, bg="#EEEDF1")
         create_scroll_box(loc_extra_frame, where_tb, VERTICAL)
         loc_lbl.grid(row=0, column=0, sticky=NW, padx=10, pady=(5, 0))
         loc_extra_frame.grid(row=1, column=0, sticky=EW, padx=10)
@@ -150,7 +152,7 @@ def show_vulns(queue):
         vuln_frame.grid_propagate(0)
         loc_frame.grid_propagate(0)
 
-        found_lb = Listbox(vuln_frame, font=FONT, width=70, height=40, selectmode=SINGLE, exportselection=False)
+        found_lb = Listbox(vuln_frame, font=FONT, width=70, height=40, selectmode=SINGLE, exportselection=False, bg="#EEEDF1", borderwidth=1)
         found_lb.bind('<<ListboxSelect>>', lambda event: write_to_text(where_tb,
                                                                        content[
                                                                            found_lb.get(
@@ -165,17 +167,6 @@ def show_vulns(queue):
         code_frame.grid(row=0, column=0, columnspan=2, sticky=EW, pady=(0, 10))
         vuln_frame.grid(row=1, column=0, pady=(0, 5), padx=(10, 0), sticky=W)
         loc_frame.grid(row=1, column=1, pady=(0, 5), sticky=W)
-
-        # v_lbl.grid(row=2, column=0, padx=(8, 8), pady=(5, 2), sticky=(N, S, E, W))
-        # loc_lbl.grid(row=2, column=1, padx=(8, 8), pady=(5, 2), sticky=(N, S, E, W))
-        #
-        # found.grid(row=3, column=0, padx=(12, 2), pady=(0, 12), sticky=(N, S, E, W))
-        # where.grid(row=3, column=1, padx=(2, 12), pady=(0, 12), sticky=(N, S, E, W))
-        #
-        # v_form.root.columnconfigure(0, weight=1)
-        # v_form.root.columnconfigure(1, weight=20)
-        # v_form.root.rowconfigure(0, weight=0)
-        # v_form.root.rowconfigure(1, weight=1)
 
         v_form.start()
     except Exception as e:
@@ -230,7 +221,7 @@ class UI(object):
     def start_main(self, handler):
         main_form = None
         try:
-            main_form = Form('Анализатор', '1178x500', FONT)
+            main_form = Form('', '1110x500+400+200', FONT)
             main_form.root.focus_force()
 
             main_menu = Menu()
@@ -241,14 +232,14 @@ class UI(object):
             main_menu.add_cascade(label="Файл", menu=file_menu)
             main_form.root.config(menu=main_menu)
 
-            v_frame = Frame(main_form.root, borderwidth=2, relief="ridge", bg="#607D8B", width=300, height=390)
+            v_frame = Frame(main_form.root, borderwidth=2, relief="groove", bg="#BDDDC2", width=300, height=390)
 
-            t_frame = LabelFrame(main_form.root, font=("Helvetica", 11), text="Ручные тесты", borderwidth=2,
-                                 relief="ridge", bg=MAIN_COLOR, width=340, height=390)
-            p_frame = LabelFrame(main_form.root, font=("Helvetica", 11), text="Программы", borderwidth=2,
-                                 relief="ridge", bg=MAIN_COLOR, width=340, height=390)
-            b_frame1 = Frame(t_frame, pady=7, bg=MAIN_COLOR)
-            b_frame2 = Frame(p_frame, pady=7, bg=MAIN_COLOR)
+            t_frame = LabelFrame(main_form.root, font=("Helvetica", 11), text="Стандартные тесты", borderwidth=3,
+                                 relief="groove", bg="#EEEDF1", width=340, height=390)
+            p_frame = LabelFrame(main_form.root, font=("Helvetica", 11), text="Программы", borderwidth=3,
+                                 relief="groove", bg="#EEEDF1", width=340, height=390)
+            b_frame1 = Frame(t_frame, pady=7, bg="#EEEDF1")
+            b_frame2 = Frame(p_frame, pady=7, bg="#EEEDF1")
 
             tests_listb = create_listbox(t_frame, EXTENDED, 0)
             programs_listb = create_listbox(p_frame, EXTENDED, 0)
@@ -256,7 +247,7 @@ class UI(object):
             create_scroll_box(t_frame, tests_listb, VERTICAL)
             create_scroll_box(p_frame, programs_listb, VERTICAL)
 
-            v_to_check = [create_check_button(v_frame, bg="#607D8B", text=vulnerability, height=1, width=30, anchor=W)
+            v_to_check = [create_check_button(v_frame, bg="#BDDDC2", text=vulnerability, height=1, width=30, anchor=W)
                           for vulnerability in self.vulnerability_names]
 
             l1 = lambda: find_vulnerabilities(
@@ -267,19 +258,22 @@ class UI(object):
                                               get_selected_v(v_to_check), handler)
             l4 = lambda: find_vulnerabilities(self.chosen_programs, get_selected_v(v_to_check), handler)
 
-            check1 = create_button(t_frame, "Проверить", self, l1)
-            check2 = create_button(p_frame, "Проверить", self, l3)
-            check_all1 = create_button(b_frame1, "Проверить все", self, l2)
-            check_all2 = create_button(b_frame2, "Проверить все", self, l4)
+            check1 = create_button(b_frame1, "Проверить", self, l1)
+            check2 = create_button(b_frame2, "Проверить", self, l3)
+            check_all1 = create_button(t_frame, "Проверить все", self, l2)
+            check_all2 = create_button(p_frame, "Проверить все", self, l4)
 
-            v_frame.grid(row=0, column=0, padx=(40, 0), pady=(30, 0), sticky=N)
-            t_frame.grid(row=0, column=1, padx=(50, 0), pady=(30, 0), sticky=N)
-            p_frame.grid(row=0, column=2, pady=(30, 0), sticky=N)
+            version_lbl = Label(main_form.root, text='Версия: 1.0.0', font=FONT, anchor='w', bg=MAIN_COLOR)
 
-            check1.pack(side=TOP)
-            check2.pack(side=TOP)
+            v_frame.grid(row=0, column=0, padx=(40, 0), pady=(40, 0), sticky=N)
+            t_frame.grid(row=0, column=1, padx=(50, 20), pady=(40, 0), sticky=N)
+            p_frame.grid(row=0, column=2, pady=(40, 0), sticky=N)
+            version_lbl.grid(row=1, column=2, pady=(30, 0), sticky=SE)
+
             check_all1.pack(side=TOP)
+            check1.pack(side=TOP)
             check_all2.pack(side=TOP)
+            check2.pack(side=TOP)
 
             b_frame1.pack()
             b_frame2.pack()
