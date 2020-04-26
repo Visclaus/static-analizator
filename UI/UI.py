@@ -147,7 +147,7 @@ def show_vulns(queue):
         code_lbl.grid(row=0, column=0, sticky=NW, padx=10, pady=(5, 0))
 
         loc_extra_frame = Frame(loc_frame, bg=MAIN_COLOR)
-        where_tb = Text(loc_extra_frame, borderwidth=1, width=80, height=15, relief="groove", wrap=WORD,
+        where_tb = Text(loc_extra_frame, borderwidth=1, width=80, height=13, relief="groove", wrap=WORD,
                         state='disabled', font=FONT, bg="#EEEDF1")
         create_scroll_box(loc_extra_frame, where_tb, VERTICAL)
         loc_lbl.grid(row=0, column=0, sticky=NW, padx=10, pady=(5, 0))

@@ -311,4 +311,4 @@ class CodeGenerator:
 
 if __name__ == '__main__':
     gen = CodeGenerator()
-    gen.gen_code(["readers"], 4)
+    gen.gen_code(["readers", "mem", "catch"], 10)
