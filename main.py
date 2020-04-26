@@ -16,7 +16,7 @@ from handlers.readers_writers_handler import ReadersWritersHandler
 from handlers.random_generator_handler import RandomGeneratorHandler
 from handlers.sql_injection_handler import SQLInjectionHandler
 
-handlers = {
+handlers_list = {
     BufferOverflowHandler.vulnerability_name: BufferOverflowHandler,
     IntegerOverflowHandler.vulnerability_name: IntegerOverflowHandler,
     RandomGeneratorHandler.vulnerability_name: RandomGeneratorHandler,
@@ -48,5 +48,5 @@ def clean_code(program):
 
 
 if __name__ == '__main__':
-    ui = UI(handlers.keys())
-    ui.start_main(lambda vulnerability, program: handlers[vulnerability]().parse(find_contexts(clean_code(program))))
+    ui = UI(handlers_list.keys())
+    ui.start_main(lambda vulnerability, program: handlers_list[vulnerability]().parse(find_contexts(clean_code(program))))

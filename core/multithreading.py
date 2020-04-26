@@ -1,20 +1,19 @@
-# from q\ueue import Queue
 import threading
 
 
-def create_workers(number_of_threads, work, queue, code_list):
-    for index in range(number_of_threads):
-        t = threading.Thread(target=work, args=(queue, code_list[index]))
+def create_workers(number_of_threads, work, queue, *args):
+    for _ in range(number_of_threads):
+        t = threading.Thread(target=work, args=(queue, *args,))
         t.daemon = True
         t.start()
     return
 
 
-def create_jobs(ITEMS, queue):
-    if not ITEMS:
+def create_jobs(args, queue):
+    if not args:
         from queue import Empty
         raise Empty()
-    for item in ITEMS:
-        queue.put(item)
+    for arg in args:
+        queue.put(arg)
     queue.join()
     return

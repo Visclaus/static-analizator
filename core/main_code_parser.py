@@ -137,6 +137,12 @@ def get_parameters(raw_parameters, declared_variables) -> List[Variable]:
                 break
     return v_parameters_list
 
+def get_p(string, line_appeared):
+    tmp = re.search(r"\(.*\)", string).group(0)[1:-1]
+    parameters_list = re.split(r",", tmp)
+    for param in parameters_list:
+        tmp_1 = param.split()
+        variable = Variable(param, line_appeared, tmp_1[1], tmp_1[0])
 
 def get_context_parameters(raw_parameters):
     reg_exp = \
