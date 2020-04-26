@@ -140,7 +140,7 @@ def show_vulns(queue):
         for index, line in enumerate(program_code):
             cur_rank = get_rank(index + 1)
             cur_indent = 2 + (max_rank - cur_rank) * 2
-            tmp_list.append(f"{index + 1}" + ' ' * cur_indent + "|  " + line.replace("\t", "   "))
+            tmp_list.append(' ' * cur_indent + str(index + 1) + "|  " + line.replace("\t", "   "))
         fill_listbox(code_lb, tmp_list)
 
         code_extra_frame.grid(row=1, column=0, columnspan=2, sticky=E, padx=10, pady=10)
@@ -190,7 +190,7 @@ def upload_chosen_p():
         programs = list(askopenfilenames(title='Открыть программы для анализа', initialdir=os.getcwd(),
                                          filetypes=[("CPP", ".cpp")]))
     except IOError:
-        messagebox.showwarning("Предупреждение", "Папка \"tests\" не существует")
+        messagebox.showwarning("Предупреждение", "Папка \"default_tests\" не существует")
     return programs
 
 
@@ -201,11 +201,11 @@ def upload_default_t():
     """
     tests = []
     try:
-        tests = [os.getcwd() + '\\tests\\' + file for file in os.listdir(os.getcwd() + '\\tests') if
+        tests = [os.getcwd() + '\\default_tests\\' + file for file in os.listdir(os.getcwd() + '\\default_tests') if
                  file.endswith(".cpp")]
     except IOError:
         from tkinter import messagebox
-        messagebox.showwarning("Предупреждение", "Директория \"tests\" не существует")
+        messagebox.showwarning("Предупреждение", "Директория \"default_tests\" не существует")
     except Exception as e:
         from tkinter import messagebox
         messagebox.showwarning("Предупреждение", e.args)
@@ -256,7 +256,7 @@ class UI(object):
                           for vulnerability in self.vulnerability_names]
 
             l1 = lambda: find_vulnerabilities(
-                [os.getcwd() + '\\tests\\' + file for file in get_selected_t(tests_listb)],
+                [os.getcwd() + '\\default_tests\\' + file for file in get_selected_t(tests_listb)],
                 get_selected_v(v_to_check), handler)
             l2 = lambda: find_vulnerabilities(self.default_tests, get_selected_v(v_to_check), handler)
             l3 = lambda: find_vulnerabilities(get_selected_p(self.chosen_programs, programs_listb),

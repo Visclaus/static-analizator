@@ -1,6 +1,5 @@
 import re
 from typing import List
-
 from core.base_handler import BaseHandler
 from core.function_context import FunctionContext
 from utils import constants
@@ -9,17 +8,15 @@ from utils import constants
 class IntegerOverflowHandler(BaseHandler):
     vulnerability_name = 'Переполнение целых чисел'
 
-    regex_arithmetic = r"^\s*([\w:<>]*)\s*=\s*([\w:<>]+|\d)\s*(\+|\-|\*|\/)?\s*([\w:<>]+|\d).*;"
-
     def __init__(self):
         self.output = []
+        self.regex_arithmetic = r"^\s*([\w:<>]*)\s*=\s*([\w:<>]+|\d)\s*(\+|\-|\*|\/)?\s*([\w:<>]+|\d).*;"
 
     def parse(self, contexts: List[FunctionContext]):
         """
         Проверяет переполнение объявленных переменных, учавствующих в арифметических операциях
         """
         for context in contexts:
-            variables = {}
             declared_vars = context.variables.copy()
             int_vars = []
             for i in declared_vars:
@@ -60,7 +57,6 @@ class IntegerOverflowHandler(BaseHandler):
                         assert (constants.integer_limits[tmp_var.var_type].min <= int(tmp_var.value) <=
                                 constants.integer_limits[tmp_var.var_type].max)
                     except AssertionError:
-                        error_details = ""
                         self.output.append(f"Угроза в методе {context.name}!\n"
                                            f"Переполнение челочисленной переменной <{tmp_var.var_name}> типа "
                                            f"<{tmp_var.var_type}> (строка {cur_line_number}) "

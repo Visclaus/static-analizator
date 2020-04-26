@@ -2,7 +2,7 @@ from typing import List
 from utils import constants
 from code_generator.rng_utils import *
 
-max_val = 20
+max_val = 40
 
 
 def gen_buffer(indent, generated_vars: List[str]):

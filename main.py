@@ -33,11 +33,14 @@ handlers_list = {
 
     IntegerOverflowHandler.vulnerability_name: IntegerOverflowHandler,
 
+    MemoryLeakHandler.vulnerability_name: MemoryLeakHandler,
+
+    RaceConditionHandler.vulnerability_name: RaceConditionHandler,
+
     RandomGeneratorHandler.vulnerability_name: RandomGeneratorHandler,
+
     SQLInjectionHandler.vulnerability_name: SQLInjectionHandler,
 
-    "Race Condition": RaceConditionHandler,
-    "Memory Leak": MemoryLeakHandler,
     "Readers–writers problem": ReadersWritersHandler,
 }
 
