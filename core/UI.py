@@ -39,7 +39,9 @@ class Form(object):
         self.root.configure(bg=MAIN_COLOR)
         self.root.update()
         self.root.title(title)
-        self.root.geometry(geometry)
+        x = int((self.root.winfo_screenwidth() - self.root.winfo_reqwidth()) / 2) - 555
+        y = int((self.root.winfo_screenheight() - self.root.winfo_reqheight()) / 2) - 250
+        self.root.geometry(geometry + "+" + str(x) + "+" + str(y))
         self.root.resizable(width=True, height=True)
         self.root.minsize(self.root.winfo_width(), self.root.winfo_height())
         self.root.protocol('WM_DELETE_WINDOW', self.exit)
@@ -112,7 +114,10 @@ def show_vulns(queue):
         program, content, program_code = queue.get(block=True)
         queue.task_done()
 
-        v_form = Form(program + ' - анализ', '1100x700+410+180', FONT)
+        v_form = Form(program + ' - анализ', '1100x700', FONT)
+        x = int((v_form.root.winfo_screenwidth() - v_form.root.winfo_reqwidth()) / 2) - 550
+        y = int((v_form.root.winfo_screenheight() - v_form.root.winfo_reqheight()) / 2) - 300
+        v_form.root.geometry("1100x700" + "+" + str(x) + "+" + str(y))
 
         code_frame = Frame(v_form.root, bg=MAIN_COLOR, width=1100, height=400, borderwidth=2)
         vuln_frame = Frame(v_form.root,
@@ -221,7 +226,7 @@ class UI(object):
     def start_main(self, handler):
         main_form = None
         try:
-            main_form = Form('', '1110x500+400+200', FONT)
+            main_form = Form('', '1110x500', FONT)
             main_form.root.focus_force()
 
             main_menu = Menu()
