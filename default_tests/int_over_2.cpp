@@ -2,8 +2,7 @@
 #include  <string.h>
 #include  <stdlib.h>
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv){
     short a;
     int multiply;
     int c = 21312321;

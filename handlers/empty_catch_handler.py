@@ -43,6 +43,8 @@ class EmptyCatchHandler(BaseHandler):
                     self.output.append(f"Предупреждение в методе <{context.name}>!\n"
                                        f"Отстутсвует обработка исключения или ошибки!  (строка {cur_line_number - len(body)})\n")
                     return cur_line_number
+                elif not is_empty(body):
+                    return cur_line_number
 
             cur_line_number += 1
 

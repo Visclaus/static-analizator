@@ -4,8 +4,7 @@
 
 
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv){
     short a;
     int c = 21312321;
 	int d = 2147483646312321;

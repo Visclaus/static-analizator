@@ -3,8 +3,7 @@
 #include <stdlib.h>
 
 
-int random_addition()
-{
+int random_addition(){
 	int a = std::rand();
 	printf("a = %d\n",a);
 	int b = std::rand();
@@ -16,8 +15,7 @@ int random_addition()
 	return 0;
 }
 
-int main()
-{
+int main(){
 	for (int i = 0; i < 10; i++)
 	{
 		int random_value = std::rand();

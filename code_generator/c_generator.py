@@ -239,11 +239,11 @@ random_code_generators = [gen_cout, gen_cond, gen_try_catch, buff_error, c_intr_
 name_generator = {
     "buff": buff_error,
     "cintr": c_intr_error,
-    "dleak": data_leak,
+    "data_leak": data_leak,
     "dstor": storage_error,
-    "ecatch": gen_try_catch,
+    "catch": gen_try_catch,
     "fileacc": file_error,
-    "foramats": format_error,
+    "formats": format_error,
     "integ": iover_error,
     "mem": free_error,
     "race": race_error,
@@ -311,4 +311,4 @@ class CodeGenerator:
 
 if __name__ == '__main__':
     gen = CodeGenerator()
-    gen.gen_code(["sql"], 1)
+    gen.gen_code(["readers"], 4)

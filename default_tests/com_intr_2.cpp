@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main()
-{
+int main(){
    char* home=getenv("APPHOME");
        char* cmd=(char*)malloc(strlen(home)+strlen(INITCMD));
        if (cmd) {
