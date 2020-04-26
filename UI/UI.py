@@ -5,9 +5,9 @@ from os.path import basename
 from queue import Queue, Empty
 from tkinter import messagebox
 from tkinter.filedialog import askopenfilenames
-from core.create_utils import *
-from core.multithreading import create_workers, create_jobs
-from core.select_utils import *
+from UI.create_utils import *
+from UI.multithreading import create_workers, create_jobs
+from UI.select_utils import *
 
 FONT = ("Helvetica", 12)
 BUTTON_WIDTH = 13
@@ -114,7 +114,7 @@ def show_vulns(queue):
         program, content, program_code = queue.get(block=True)
         queue.task_done()
 
-        v_form = Form(program + ' - анализ', '1100x700', FONT)
+        v_form = Form(program + ' - анализ программы', '1100x700', FONT)
         x = int((v_form.root.winfo_screenwidth() - v_form.root.winfo_reqwidth()) / 2) - 550
         y = int((v_form.root.winfo_screenheight() - v_form.root.winfo_reqheight()) / 2) - 300
         v_form.root.geometry("1100x700" + "+" + str(x) + "+" + str(y))
@@ -201,7 +201,7 @@ def upload_default_t():
     """
     tests = []
     try:
-        tests = [os.getcwd() + '/tests/' + file for file in os.listdir(os.getcwd() + '/tests') if
+        tests = [os.getcwd() + '\\tests\\' + file for file in os.listdir(os.getcwd() + '\\tests') if
                  file.endswith(".cpp")]
     except IOError:
         from tkinter import messagebox
@@ -256,7 +256,7 @@ class UI(object):
                           for vulnerability in self.vulnerability_names]
 
             l1 = lambda: find_vulnerabilities(
-                [os.getcwd() + '/tests/' + file for file in get_selected_t(tests_listb)],
+                [os.getcwd() + '\\tests\\' + file for file in get_selected_t(tests_listb)],
                 get_selected_v(v_to_check), handler)
             l2 = lambda: find_vulnerabilities(self.default_tests, get_selected_v(v_to_check), handler)
             l3 = lambda: find_vulnerabilities(get_selected_p(self.chosen_programs, programs_listb),

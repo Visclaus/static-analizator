@@ -1,6 +1,6 @@
 import re
 
-from core.UI import UI
+from UI.UI import UI
 from core.main_code_parser import find_contexts
 from handlers.buffer_overflow_handler import BufferOverflowHandler
 from handlers.commands_introduction_hadler import CommandsIntroductionHandler
