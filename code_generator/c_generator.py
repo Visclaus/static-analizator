@@ -190,9 +190,51 @@ def race_error(indent, params, a_f):
     return code
 
 
-# сюда можно добавить любой из объявленных генераторов
+def rng_error(indent, params, a_f):
+    funcs = [
+        {"srand(": 1},
+        {"rand(": 0},
+        {"uniform_real_distribution(": 0}
+    ]
+    cur_func_dict = r_v(funcs)
+    cur_func = list(cur_func_dict.keys())[0]
+    if cur_func == "uniform_real_distribution(":
+        code = indent + "std::uniform_real_distribution<> dis(" + str(rng(1, 3)) + ", " + str(rng(1, 9)) + ");\n"
+        return code
+    if cur_func == "srand(":
+        code = indent + cur_func + str(rng(3, 100)) + ");\n"
+        return code
+    else:
+        code = indent + cur_func + ");\n"
+        return code
+
+
+def readers_error(indent, params, a_f):
+    code = ""
+    for index in range(rng(2, 5)):
+        for i in range(rng(2, 3)):
+            code += r_v(random_code_generators)(indent, params, a_f)
+        chosen_param_list = [params[param] for param in gen_n_rands(4, 0, len(params) - 1)]
+        code += indent + "std::thread t" + str(index) + "(" + r_v(a_f) + ", " + ", ".join(chosen_param_list) + ");\n"
+    return code
+
+
+def sql_error(indent, params, a_f):
+    funcs = ["execute(", "executeQuery("]
+    cur_func = r_v(funcs)
+    sample_text = ""
+    for _ in range(3):
+        sample_text += r_v(sample_words) + "'"
+    random = rng(0, 1)
+    if random == 0:
+        code = indent + cur_func + "\"" + sample_text + "\");\n"
+    else:
+        code = indent + cur_func + r_v(params) + ");\n"
+    return code
+
+
 random_code_generators = [gen_cout, gen_cond, gen_try_catch, buff_error, c_intr_error, data_leak, storage_error,
-                          file_error, format_error, iover_error, free_error]
+                          file_error, format_error, iover_error, free_error, rng_error, sql_error]
 
 name_generator = {
     "buff": buff_error,
@@ -205,12 +247,10 @@ name_generator = {
     "integ": iover_error,
     "mem": free_error,
     "race": race_error,
+    "rng": rng_error,
+    "readers": readers_error,
+    "sql": sql_error
 }
-#
-#     "rand":,
-#     "reader":,
-#     "sql":
-# }
 
 
 class CodeGenerator:
@@ -260,7 +300,7 @@ class CodeGenerator:
 
     def gen_code(self, vulnerabilities: List[str], test_numbers):
         for index in range(test_numbers):
-            file = open('../generated_tests/' + "+".join(vulnerabilities) + str(index+1) + '.cpp', 'w')
+            file = open('../generated_tests/' + "+".join(vulnerabilities) + str(index + 1) + '.cpp', 'w')
             self.cur_available_funcs = [self.gen_sample_function(file)]
             generators = []
             for vuln in vulnerabilities:
@@ -271,4 +311,4 @@ class CodeGenerator:
 
 if __name__ == '__main__':
     gen = CodeGenerator()
-    gen.gen_code(["race"], 2)
+    gen.gen_code(["sql"], 1)

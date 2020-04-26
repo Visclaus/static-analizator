@@ -6,8 +6,7 @@ from core.function_context import FunctionContext
 
 
 class SQLInjectionHandler(BaseHandler):
-
-    vulnerability_name = 'SQL Injection'
+    vulnerability_name = 'SQL инъекции'
 
     def __init__(self):
         self.pattern = r'(executeQuery|execute)(\(.*\))'
@@ -23,11 +22,11 @@ class SQLInjectionHandler(BaseHandler):
                     tmp = match.group(2)[1:-1]
                     if tmp[0] == '\"':  # check if parameter is literally string like "test string"
                         if re.search(r'[^\\]\'', tmp) is not None:
-                            self.output.append(f"WARNING in function {context.name}! "
-                                               f"The body of your sql query ({tmp[1:-1]}), which is used in method \"{match.group(1)}\" (line{cur_line_number}) "
-                                               f"has unescaped character(s) - '\nIt's may cause sql injection vulnerability")
+                            self.output.append(f"Угроза в методе <{context.name}>!\n"
+                                               f"Тело sql запроса <{tmp[1:-1]}>, используемое в функции <{match.group(1)}> (строка {cur_line_number}) "
+                                               f"имеет неэкранированный символ(ы) <'>\nЭто может привести к sql инъекции")
                     else:
-                        self.output.append(f"WARNING in function {context.name}! "
-                                           f"Check the body of your sql query ({tmp}), which is used in method \"{match.group(1)}\" (line{cur_line_number}) "
-                                           f"for having unescaped character(s) - '\nIt's may cause sql injection vulnerability")
+                        self.output.append(f"Предупреждение в методе <{context.name}>!\n"
+                                           f"Проверьте тело sql запроса <{tmp}>, используемое в функции <{match.group(1)}> (строка {cur_line_number}) "
+                                           f"на наличие неэкранированного символа <'>'\nЭто может привести к sql инъекции")
         return self.output

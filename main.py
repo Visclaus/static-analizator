@@ -39,9 +39,9 @@ handlers_list = {
 
     RandomGeneratorHandler.vulnerability_name: RandomGeneratorHandler,
 
-    SQLInjectionHandler.vulnerability_name: SQLInjectionHandler,
+    ReadersWritersHandler.vulnerability_name: ReadersWritersHandler,
 
-    "Readers–writers problem": ReadersWritersHandler,
+    SQLInjectionHandler.vulnerability_name: SQLInjectionHandler,
 }
 
 

@@ -5,8 +5,9 @@ from core.function_context import FunctionContext
 
 
 class ReadersWritersHandler(BaseHandler):
+    vulnerability_name = 'Читатели - Писатели'
+
     def __init__(self):
-        self.vulnerability_name = 'Readers Writers'
         self.output = []
 
     def parse(self, contexts: List[FunctionContext]):
@@ -37,10 +38,12 @@ class ReadersWritersHandler(BaseHandler):
                     for key in var_usage:
                         if len(var_usage[key]) > 1:
                             thread
-                            warning = f"WARNING in function {context.name}\n"
-                            warning += "Threads:\n"
+                            warning = f"Предупреждение в методе <{context.name}>!\n"
+                            warning += "Потоки:\n"
                             for thread in var_usage[key]:
-                                warning += f"\"{thread.thread_name} line ({thread.line_appeared})\"\n"
-                            warning += f"are using the same variable \"{key}\" as runnable parameter, it may cause readers writers problem!\n"
+                                warning += f"\"<{thread.thread_name}> (строка {thread.line_appeared})\"\n"
+                            warning += f"используют одну и ту же переменную <{key}> " \
+                                       f"в качестве параметра для исполняемой функции, " \
+                                       f"это может привести к проблеме Читатели - Писатели!\n"
                 self.output.append(warning)
         return self.output
