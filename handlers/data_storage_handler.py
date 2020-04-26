@@ -5,8 +5,7 @@ from core.function_context import FunctionContext
 
 
 class DataStorageManagementHandler(BaseHandler):
-
-    vulnerability_name = 'Пренебрежение безопасным хранением данных'
+    vulnerability_name = 'Небезопасное хранение данных'
 
     """
     - BOOL SetFileSecurity(LPCTSTR lpFileName, SECURITY_INFORMATION SecurityInformation, 

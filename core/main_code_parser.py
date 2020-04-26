@@ -94,6 +94,20 @@ def get_declared_variables(source_code):
             for var in found_variables:
                 if match.group(1) == var.var_name:
                     var.value = match.group(2)[1:].strip()
+    variable_regexp_2 = r"^\s*(int\s*|short\s*|byte\s*|char\s*|long\s*)?([\w:<>]*)\s*=\s*([\w:<>]*)\s*;"
+    for line in source_code:
+        processed_line = list(line.keys())[0]
+        matches = re.finditer(variable_regexp_2, processed_line, re.MULTILINE)
+        for match in matches:
+            v1 = None
+            v2 = None
+            for var in found_variables:
+                if match.group(2) == var.var_name:
+                    v1 = var
+                if match.group(3) == var.var_name:
+                    v2 = var
+            if v1 is not None and v2 is not None:
+                v1.value = v2.value
     return found_variables
 
 

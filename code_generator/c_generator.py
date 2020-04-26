@@ -149,9 +149,15 @@ def file_error(indent, params):
     return code
 
 
+def format_error(indent, params):
+    chosen_param_list = [params[param] for param in gen_n_rands(2, 0, len(params) - 1)]
+    code = indent + "printf(Format %s and %s, " + ", ".join(chosen_param_list) + ");\n"
+    return code
+
+
 # сюда можно добавить любой из объявленных генераторов
 random_code_generators = [gen_cout, gen_cond, gen_try_catch, buff_error, c_intr_error, data_leak, storage_error,
-                          file_error]
+                          file_error, format_error]
 
 
 class CodeGenerator:

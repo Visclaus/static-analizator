@@ -18,15 +18,24 @@ from handlers.sql_injection_handler import SQLInjectionHandler
 
 handlers_list = {
     BufferOverflowHandler.vulnerability_name: BufferOverflowHandler,
-    IntegerOverflowHandler.vulnerability_name: IntegerOverflowHandler,
-    RandomGeneratorHandler.vulnerability_name: RandomGeneratorHandler,
+
     CommandsIntroductionHandler.vulnerability_name: CommandsIntroductionHandler,
+
     DataLeakHandler.vulnerability_name: DataLeakHandler,
-    SQLInjectionHandler.vulnerability_name: SQLInjectionHandler,
+
+    DataStorageManagementHandler.vulnerability_name: DataStorageManagementHandler,
+
     EmptyCatchHandler.vulnerability_name: EmptyCatchHandler,
-    "Format String Vulnerability": FormatStringHandler,
+
     IncorrectFileAccessHandler.vulnerability_name: IncorrectFileAccessHandler,
-    "Bad Data Storage Management": DataStorageManagementHandler,
+
+    FormatStringHandler.vulnerability_name: FormatStringHandler,
+
+    IntegerOverflowHandler.vulnerability_name: IntegerOverflowHandler,
+
+    RandomGeneratorHandler.vulnerability_name: RandomGeneratorHandler,
+    SQLInjectionHandler.vulnerability_name: SQLInjectionHandler,
+
     "Race Condition": RaceConditionHandler,
     "Memory Leak": MemoryLeakHandler,
     "Readers–writers problem": ReadersWritersHandler,

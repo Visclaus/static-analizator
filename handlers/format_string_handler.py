@@ -6,9 +6,10 @@ from core.function_context import FunctionContext
 
 
 class FormatStringHandler(BaseHandler):
+    vulnerability_name = 'Ошибка форматной строки'
+
     def __init__(self):
-        self.vulnerability_name = 'Format String'
-        self.pattern = r'(printf[(][a-zA-Z0-9_]*)([)])'  # TODO: improve to parse cases with whitespaces, maybe find another regex for this vuln
+        self.pattern = r'(printf\(.*)\)'
         self.output = []
 
     def parse(self, contexts: List[FunctionContext]):
@@ -18,7 +19,7 @@ class FormatStringHandler(BaseHandler):
                 processed_line = list(line.keys())[0]
                 matches = re.finditer(self.pattern, processed_line, re.IGNORECASE)
                 for _ in matches:
-                    self.output.append(f"WARNING in function {context.name}! "
-                                       f"Possible format string vulnerable (line {cur_line_number})")
+                    self.output.append(f"Предупреждение в методе <{context.name}>!\n"
+                                       f"Возможна ошибка форматной строки (строка {cur_line_number})\n")
 
         return self.output
