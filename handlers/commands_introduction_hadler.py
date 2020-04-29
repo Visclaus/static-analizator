@@ -29,14 +29,12 @@ class CommandsIntroductionHandler(BaseHandler):
 
     def parse(self, contexts: List[FunctionContext]):
         for context in contexts:
-            for line in context.source_code:
-                cur_line_number = list(line.values())[0]
-                processed_line = list(line.keys())[0]
-                matches = re.finditer(self.pattern, processed_line)
+            for line_number, line in context.source_code.items():
+                matches = re.finditer(self.pattern, line)
                 for match in matches:
                     self.output.append(f"Предупреждение в методе <{context.name}>!\n"
                                        f"Использование функции <{match.group(1)}>, в которую может быть внедрена"
-                                       f" вредоносная команда (строка {cur_line_number}) "
+                                       f" вредоносная команда (строка {line_number}) "
                                        f"Убедитесь в наличии проверки этой угрозы!\n")
 
         return self.output

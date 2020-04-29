@@ -20,9 +20,8 @@ class MemoryLeakHandler(BaseHandler):
                     if "new" in var.value:
                         m_vars.append(var)
             free_matches = []
-            for line in context.source_code:
-                processed_line = list(line.keys())[0]
-                matches = re.finditer(self.pattern, processed_line, re.IGNORECASE)
+            for _, line in context.source_code.items():
+                matches = re.finditer(self.pattern, line, re.IGNORECASE)
                 free_matches += matches
             for var in m_vars:
                 if var.var_name not in list(map(lambda x: x.group(1)[1:-1].strip(), free_matches)):

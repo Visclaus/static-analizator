@@ -36,10 +36,8 @@ class BufferOverflowHandler(BaseHandler):
     def parse(self, contexts: List[FunctionContext]):
         for context in contexts:
             declared_variables = context.variables
-            for line in context.source_code:
-                cur_line_number = list(line.values())[0]
-                processed_line = list(line.keys())[0]
-                matches = re.finditer(self.pattern, processed_line)
+            for line_number, line in context.source_code.items():
+                matches = re.finditer(self.pattern, line)
                 for match in matches:
                     used_variables = main_code_parser.get_parameters(match.group(0), declared_variables)
                     for used_variable in used_variables:
@@ -48,7 +46,7 @@ class BufferOverflowHandler(BaseHandler):
                             self.output.append(
                                 f"Предупреждение в методе <{context.name}>!\n"
                                 f"Использование буфера <{declaration[:-1]}> (строка {used_variable.line_appeared}) "
-                                f"в небезопасной функции <{match.group(1)}> (строка {cur_line_number}).\n"
+                                f"в небезопасной функции <{match.group(1)}> (строка {line_number}).\n"
                                 f"Это может стать причиной переполнения буфера. "
                                 f"Убедитесь в наличии проверки этой угрозы!\n")
 

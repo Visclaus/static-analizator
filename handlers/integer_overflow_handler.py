@@ -23,10 +23,8 @@ class IntegerOverflowHandler(BaseHandler):
                 if i.var_type in constants.int_types:
                     int_vars.append(i)
 
-            for line in context.source_code:
-                cur_line_number = list(line.values())[0]
-                processed_line = list(line.keys())[0]
-                arithmetic_matches = re.finditer(self.regex_arithmetic, processed_line, re.IGNORECASE)
+            for line_number, line in context.source_code.items():
+                arithmetic_matches = re.finditer(self.regex_arithmetic, line, re.IGNORECASE)
                 for matchNum, match in enumerate(arithmetic_matches):
                     left = None
                     right = None
@@ -59,6 +57,6 @@ class IntegerOverflowHandler(BaseHandler):
                     except AssertionError:
                         self.output.append(f"Угроза в методе {context.name}!\n"
                                            f"Переполнение челочисленной переменной <{tmp_var.var_name}> типа "
-                                           f"<{tmp_var.var_type}> (строка {cur_line_number}) "
+                                           f"<{tmp_var.var_type}> (строка {line_number}) "
                                            f"Выход за границы типа!")
         return self.output

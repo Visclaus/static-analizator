@@ -27,17 +27,15 @@ class RandomGeneratorHandler(BaseHandler):
         2)Находит использование небезопасных функций генерации rand() и uniform_real_distribution
         """
         for context in contexts:
-            for line in context.source_code:
-                cur_line_number = list(line.values())[0]
-                processed_line = list(line.keys())[0]
-                srand_matches = re.finditer(self.pattern[0], processed_line, re.IGNORECASE)
+            for line_number, line in context.source_code.items():
+                srand_matches = re.finditer(self.pattern[0], line, re.IGNORECASE)
                 for match in srand_matches:
                     if match.group(1).isdigit():
                         self.output.append(f"Угроза в методе <{context.name}>!\n"
                                            f"Использование функции <srand>, которая инициализирована константным значением - "
-                                           f"{match.group(1)} (строка {cur_line_number})")
-                rand_matches = re.finditer(self.pattern[1], processed_line, re.IGNORECASE)
+                                           f"{match.group(1)} (строка {line_number})")
+                rand_matches = re.finditer(self.pattern[1], line, re.IGNORECASE)
                 for match in rand_matches:
                     self.output.append(f"Предупреждение в методе {context.name}!\n"
-                                       f"Использования не крипто-безопасной функции генерации <{match.group(0)}> (строка {cur_line_number})")
+                                       f"Использования не крипто-безопасной функции генерации <{match.group(0)}> (строка {line_number})")
         return self.output

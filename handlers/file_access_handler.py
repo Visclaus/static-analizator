@@ -31,25 +31,23 @@ class IncorrectFileAccessHandler(BaseHandler):
             streams = list(filter(lambda v: 1 if v.var_type == "ofstream" or v.var_type == "ifstream" else 0,
                                   context.variables))
             streams = [v.var_name for v in streams]
-            for line in context.source_code:
-                cur_line_number = list(line.values())[0]
-                processed_line = list(line.keys())[0]
-                matches = re.finditer(r"(ifstream|ofstream)\s*([\w]*[\w\d_]*)\.open\(.*\)", processed_line)
+            for line_number, line in context.source_code.items():
+                matches = re.finditer(r"(ifstream|ofstream)\s*([\w]*[\w\d_]*)\.open\(.*\)", line)
                 for match in matches:
                     self.output.append(f"Предупреждение в методе <{context.name}>!\n"
                                        f"Использование функции открытия потока ввода/вывода <{match.group(1)}> "
-                                       f"(строка {cur_line_number}). Проверьте доступность открываемого файла")
-                matches = re.finditer(r"(" + "|".join(streams) + r")\.open", processed_line)
+                                       f"(строка {line_number}). Проверьте доступность открываемого файла")
+                matches = re.finditer(r"(" + "|".join(streams) + r")\.open", line)
                 for match in matches:
                     self.output.append(f"Предупреждение в методе <{context.name}>!\n"
                                        f"Использование функции открытия потока ввода/вывода <{match.group(1)}> "
-                                       f"(строка {cur_line_number}). Проверьте доступность открываемого файла")
+                                       f"(строка {line_number}). Проверьте доступность открываемого файла")
 
-                matches = re.finditer(self.pattern, processed_line)
+                matches = re.finditer(self.pattern, line)
                 for match in matches:
                     self.output.append(f"Предупреждение в методе <{context.name}>!\n"
                                        f"Использование функции <{match.group(0)}>, которая осуществляет доступ к файлам"
-                                       f" (line {cur_line_number}). Отсутствие проверки существования файла может "
+                                       f" (line {line_number}). Отсутствие проверки существования файла может "
                                        f"привести к ошибке")
 
         return self.output

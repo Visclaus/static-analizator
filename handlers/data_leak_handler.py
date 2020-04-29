@@ -36,18 +36,16 @@ class DataLeakHandler(BaseHandler):
 
     def parse(self, contexts: List[FunctionContext]):
         for context in contexts:
-            for line in context.source_code:
-                cur_line_number = list(line.values())[0]
-                processed_line = list(line.keys())[0]
-                matches = re.finditer(self.pattern, processed_line)
+            for line_number, line in context.source_code.items():
+                matches = re.finditer(self.pattern, line)
                 for match in matches:
                     if match.group(0) == "errno":
                         self.output.append(f"Предупреждение в методе <{context.name}>!\n"
                                            f"Использование макроса <{match.group(0)}>, который может привести к утечке "
-                                           f"системных данных или к расскрытию важной информации (строка {cur_line_number})\n")
+                                           f"системных данных или к расскрытию важной информации (строка {line_number})\n")
                     else:
                         self.output.append(f"Предупреждение в методе <{context.name}>!\n"
                                            f"Использование функции <{match.group(0)}>, которая может привести к утечке "
-                                           f"системных данных или к расскрытию важной информации (строка {cur_line_number})\n")
+                                           f"системных данных или к расскрытию важной информации (строка {line_number})\n")
 
         return self.output

@@ -26,7 +26,7 @@ class EmptyCatchHandler(BaseHandler):
         open_br = 1
         dict_lines = context.source_code
         while cur_line_number < len(dict_lines):
-            cur_line = list(dict_lines[cur_line_number].keys())[0]
+            cur_line = list(dict_lines.items())[cur_line_number][1]
             if re.match(self.pattern, cur_line) is not None:
                 return self.analyze_catch(cur_line_number + 1, global_line_number + 1, context)
 
@@ -55,7 +55,7 @@ class EmptyCatchHandler(BaseHandler):
             prev_index += index
             index = 0
             while index < len(context.source_code):
-                processed_line = list(context.source_code[index].keys())[0]
+                processed_line = list(context.source_code.items())[index][1]
                 if re.match(self.pattern, processed_line) is not None:
                     index = self.analyze_catch(index + 1, index + prev_index + 1, context)
                 else:

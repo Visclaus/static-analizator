@@ -14,12 +14,10 @@ class FormatStringHandler(BaseHandler):
 
     def parse(self, contexts: List[FunctionContext]):
         for context in contexts:
-            for line in context.source_code:
-                cur_line_number = list(line.values())[0]
-                processed_line = list(line.keys())[0]
-                matches = re.finditer(self.pattern, processed_line, re.IGNORECASE)
+            for line_number, line in context.source_code.items():
+                matches = re.finditer(self.pattern, line, re.IGNORECASE)
                 for _ in matches:
                     self.output.append(f"Предупреждение в методе <{context.name}>!\n"
-                                       f"Возможна ошибка форматной строки (строка {cur_line_number})\n")
+                                       f"Возможна ошибка форматной строки (строка {line_number})\n")
 
         return self.output
