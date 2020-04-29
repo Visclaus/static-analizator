@@ -11,7 +11,6 @@ class ReadersWritersHandler(BaseHandler):
         self.output = []
 
     def parse(self, contexts: List[FunctionContext]):
-        warning = ""
         for context in contexts:
             if len(context.threads) != 0:
                 declared_threads = context.threads
@@ -35,9 +34,9 @@ class ReadersWritersHandler(BaseHandler):
                 # checking where same parameters has usage in several threads
                 thread_with_same_vars =[]
                 for var_usage in vars_to_threads:
+                    warning = ""
                     for key in var_usage:
                         if len(var_usage[key]) > 1:
-                            thread
                             warning = f"Предупреждение в методе <{context.name}>!\n"
                             warning += "Потоки:\n"
                             for thread in var_usage[key]:
@@ -45,5 +44,5 @@ class ReadersWritersHandler(BaseHandler):
                             warning += f"используют одну и ту же переменную <{key}> " \
                                        f"в качестве параметра для исполняемой функции, " \
                                        f"это может привести к проблеме Читатели - Писатели!\n"
-                self.output.append(warning)
+                    self.output.append(warning)
         return self.output
