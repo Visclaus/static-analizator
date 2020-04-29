@@ -8,8 +8,9 @@ void func_1(char *param_1, int *param_2){
    memcpy(c, param_2, size)
 }
 
+
 int main (char **argv){
-   char c[11];
+   char c[12];
    func_1(argv[1], argv[2]);
    strcpy(c, argv[3]);
    return 0;

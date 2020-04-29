@@ -9,7 +9,7 @@ class MemoryLeakHandler(BaseHandler):
     vulnerability_name = 'Ошибка высвобождения памяти'
 
     def __init__(self):
-        self.pattern = r'^\s*free(\(.*\))'
+        self.pattern = r'^\s*delete(\(.*\))'
         self.output = []
 
     def parse(self, contexts: List[FunctionContext]):
