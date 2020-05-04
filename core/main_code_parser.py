@@ -17,7 +17,8 @@ def find_contexts(source_code):
     """
     func_declarations = get_func_declarations(source_code)
     for func in func_declarations:
-        func.variables = get_declared_variables(func.source_code)
+        func.variables += func.parameters
+        func.variables += get_declared_variables(func.source_code)
         func.threads = get_declared_threads(func.source_code, func.variables)
     return func_declarations
 
@@ -42,7 +43,9 @@ def get_func_declarations(source_code):
         close_bracer_matches = re.finditer(r"}", line)
         for _ in close_bracer_matches:
             close_br += 1
-
+        mutex_match = re.match(rc.mutex_regexp, line, re.MULTILINE)
+        if mutex_match is not None:
+            FunctionContext.global_mutexes.append(mutex_match.group(2))
         func_match = re.match(rc.func_decl_regexp, line, re.MULTILINE)
         if func_match is not None:
             pointer = func_match.group(2)

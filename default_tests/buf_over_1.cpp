@@ -1,5 +1,6 @@
 #include <string.h>
-
+std::mutex SyncMutex;
+mutex testMutex;
 char *func_1(char *param_1, int *param_2)
 {
    char c;
@@ -18,4 +19,4 @@ int main (char **argv){
    func_1(argv[1], argv[2]);
    strcpy(c, argv[3]);
    return 0;
-}
+}Переполнение буфера: 1

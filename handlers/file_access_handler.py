@@ -23,10 +23,11 @@ class IncorrectFileAccessHandler(BaseHandler):
 
     def __init__(self):
 
-        self.pattern = r'(mkdir|mktemp|rmdir|utime)'
+        self.pattern = r'(^mkdir|^mktemp|^rmdir|^utime|^chmod)'
         self.output = []
 
     def parse(self, contexts: List[FunctionContext]):
+        total_errors = 0
         for context in contexts:
             streams = list(filter(lambda v: 1 if v.var_type == "ofstream" or v.var_type == "ifstream" else 0,
                                   context.variables))
@@ -34,20 +35,23 @@ class IncorrectFileAccessHandler(BaseHandler):
             for line_number, line in context.source_code.items():
                 matches = re.finditer(r"(ifstream|ofstream)\s*([\w]*[\w\d_]*)\.open\(.*\)", line)
                 for match in matches:
-                    self.output.append(f"Предупреждение в методе <{context.name}>!\n"
+                    total_errors += 1
+                    self.output.append(f"{total_errors}) Предупреждение в методе <{context.name}>!\n"
                                        f"Использование функции открытия потока ввода/вывода <{match.group(1)}> "
                                        f"(строка {line_number}). Проверьте доступность открываемого файла")
-                matches = re.finditer(r"(" + "|".join(streams) + r")\.open", line)
-                for match in matches:
-                    self.output.append(f"Предупреждение в методе <{context.name}>!\n"
-                                       f"Использование функции открытия потока ввода/вывода <{match.group(1)}> "
-                                       f"(строка {line_number}). Проверьте доступность открываемого файла")
+                # matches = re.finditer(r"(" + "|".join(streams) + r")\.open", line)
+                # for match in matches:
+                #     total_errors += 1
+                #     self.output.append(f"{total_errors}) Предупреждение в методе <{context.name}>!\n"
+                #                        f"Использование функции открытия потока ввода/вывода <{match.group(1)}> "
+                #                        f"(строка {line_number}). Проверьте доступность открываемого файла")
 
                 matches = re.finditer(self.pattern, line)
                 for match in matches:
-                    self.output.append(f"Предупреждение в методе <{context.name}>!\n"
+                    total_errors += 1
+                    self.output.append(f"{total_errors}) Предупреждение в методе <{context.name}>!\n"
                                        f"Использование функции <{match.group(0)}>, которая осуществляет доступ к файлам"
                                        f" (line {line_number}). Отсутствие проверки существования файла может "
                                        f"привести к ошибке")
-
+        self.output.append(self.vulnerability_name + ": " + str(total_errors))
         return self.output

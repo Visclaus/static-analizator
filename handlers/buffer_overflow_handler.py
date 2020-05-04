@@ -34,6 +34,7 @@ class BufferOverflowHandler(BaseHandler):
         self.output = []
 
     def parse(self, contexts: List[FunctionContext]):
+        total_errors = 0
         for context in contexts:
             declared_variables = context.variables
             for line_number, line in context.source_code.items():
@@ -43,11 +44,12 @@ class BufferOverflowHandler(BaseHandler):
                     for used_variable in used_variables:
                         declaration = used_variable.full_declaration
                         if is_pointer(declaration) or is_array(declaration):
+                            total_errors += 1
                             self.output.append(
-                                f"Предупреждение в методе <{context.name}>!\n"
+                                f"{total_errors}) Предупреждение в методе <{context.name}>!\n"
                                 f"Использование буфера <{declaration[:-1]}> (строка {used_variable.line_appeared}) "
                                 f"в небезопасной функции <{match.group(1)}> (строка {line_number}).\n"
                                 f"Это может стать причиной переполнения буфера. "
                                 f"Убедитесь в наличии проверки этой угрозы!\n")
-
+        self.output.append(self.vulnerability_name + ": " + str(total_errors))
         return self.output

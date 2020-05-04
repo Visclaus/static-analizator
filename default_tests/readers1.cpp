@@ -1,4 +1,8 @@
+std::mutex TestMutex;
+mutex Mut;
+
 float function_20(unsigned long int var_25, unsigned int var_6) {
+    TestMutex.lock();
 	int var_29[15];
 	ifstream var_35.open("D://do");
 	signed int var_16 = 1;

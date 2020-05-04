@@ -6,7 +6,7 @@ from core.function_context import FunctionContext
 
 
 class RandomGeneratorHandler(BaseHandler):
-    vulnerability_name = 'Случайные числа крипто-го качества'
+    vulnerability_name = 'Случайные числа криптографического характера'
 
     """
     void srand(unsigned seed); - используется для установки начала последовательности, генерируемой функ­цией rand().
@@ -26,16 +26,20 @@ class RandomGeneratorHandler(BaseHandler):
         1)Находит использование функции генерации srand(), в случаях когда она инициализирована const числовым значением
         2)Находит использование небезопасных функций генерации rand() и uniform_real_distribution
         """
+        total_errors = 0
         for context in contexts:
             for line_number, line in context.source_code.items():
                 srand_matches = re.finditer(self.pattern[0], line, re.IGNORECASE)
                 for match in srand_matches:
                     if match.group(1).isdigit():
-                        self.output.append(f"Угроза в методе <{context.name}>!\n"
+                        total_errors += 1
+                        self.output.append(f"{total_errors}) Угроза в методе <{context.name}>!\n"
                                            f"Использование функции <srand>, которая инициализирована константным значением - "
                                            f"{match.group(1)} (строка {line_number})")
                 rand_matches = re.finditer(self.pattern[1], line, re.IGNORECASE)
                 for match in rand_matches:
-                    self.output.append(f"Предупреждение в методе {context.name}!\n"
+                    total_errors += 1
+                    self.output.append(f"{total_errors}) Предупреждение в методе {context.name}!\n"
                                        f"Использования не крипто-безопасной функции генерации <{match.group(0)}> (строка {line_number})")
+        self.output.append(self.vulnerability_name + ": " + str(total_errors))
         return self.output

@@ -34,12 +34,15 @@ class DataStorageManagementHandler(BaseHandler):
         self.output = []
 
     def parse(self, contexts: List[FunctionContext]):
+        total_errors = 0
         for context in contexts:
             for line_number, line in context.source_code.items():
                 matches = re.finditer(self.pattern, line)
                 for match in matches:
-                    self.output.append(f"Предупреждение в методе <{context.name}>!\n"
+                    total_errors += 1
+                    self.output.append(f"{total_errors}) Предупреждение в методе <{context.name}>!\n"
                                        f"Использование функции, регулирующей настройки безопасности системы или файлов "
                                        f"<{match.group(0)}>, которая может привести к проблеме "
                                        f"ненадежного хранения данных (строка {line_number})\n")
+        self.output.append(self.vulnerability_name + ": " + str(total_errors))
         return self.output

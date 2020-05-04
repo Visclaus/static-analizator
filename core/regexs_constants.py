@@ -28,3 +28,5 @@ variable_regexp = \
 assignment_regexp = r"(\w+)\s*=\s*(.+)\s*;"
 
 thread_regexp = r'^(std::)?thread\s+(\w+)\s*\(\s*(\w+)\s*(,\s*[\w,"]*\s*)*\)\s*;'
+
+mutex_regexp = r'^(std::)?mutex\s+(\w+);'

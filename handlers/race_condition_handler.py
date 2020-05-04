@@ -11,6 +11,7 @@ class RaceConditionHandler(BaseHandler):
         self.output = []
 
     def parse(self, contexts: List[FunctionContext]):
+        total_errors = 0
         for context in contexts:
             if len(context.threads) != 0:
                 declared_threads = context.threads
@@ -30,7 +31,8 @@ class RaceConditionHandler(BaseHandler):
                 # checking where function is used more than one time as runnable
                 for func_usage in funcs_to_threads:
                     if len(func_usage) > 1:
-                        warning = f"Предупреждение в методе <{context.name}>!\n"
+                        total_errors += 1
+                        warning = f"{total_errors}) Предупреждение в методе <{context.name}>!\n"
                         warning += "Потоки:\n"
                         cur_func = func_usage[0].runnable_function
                         for thread in func_usage:
@@ -38,4 +40,5 @@ class RaceConditionHandler(BaseHandler):
                         warning += f"используют одну и туже исполняемую функцию <{cur_func}>, " \
                                    f"это может вызвать состояние гонки!\n"
                         self.output.append(warning)
+        self.output.append(self.vulnerability_name + ": " + str(total_errors))
         return self.output

@@ -16,6 +16,7 @@ class IntegerOverflowHandler(BaseHandler):
         """
         Проверяет переполнение объявленных переменных, учавствующих в арифметических операциях
         """
+        total_errors = 0
         for context in contexts:
             declared_vars = context.variables.copy()
             int_vars = []
@@ -55,8 +56,10 @@ class IntegerOverflowHandler(BaseHandler):
                         assert (constants.integer_limits[tmp_var.var_type].min <= int(tmp_var.value) <=
                                 constants.integer_limits[tmp_var.var_type].max)
                     except AssertionError:
-                        self.output.append(f"Угроза в методе {context.name}!\n"
+                        total_errors += 1
+                        self.output.append(f"{total_errors}) Угроза в методе {context.name}!\n"
                                            f"Переполнение челочисленной переменной <{tmp_var.var_name}> типа "
                                            f"<{tmp_var.var_type}> (строка {line_number}) "
                                            f"Выход за границы типа!")
+        self.output.append(self.vulnerability_name + ": " + str(total_errors))
         return self.output

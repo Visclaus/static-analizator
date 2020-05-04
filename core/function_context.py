@@ -4,6 +4,8 @@ from core.variable import Variable
 
 
 class FunctionContext:
+    global_mutexes = []
+
     def __init__(self, return_type, name, parameters):
         self.return_type = return_type
         self.name = name

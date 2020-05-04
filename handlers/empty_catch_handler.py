@@ -13,12 +13,13 @@ def is_empty(catch_body: List[str]):
 
 
 class EmptyCatchHandler(BaseHandler):
-    vulnerability_name = 'Пренебрежение обработкой ошибок'
+    vulnerability_name = 'Пренебрежение обработкой исключений'
 
     def __init__(self):
         self.pattern = r'catch\s*' \
                        r'\(.*\)\s*\{'
         self.output = []
+        self.total_errors = 0
 
     def analyze_catch(self, cur_line_number, global_line_number, context):
         body = []
@@ -40,7 +41,8 @@ class EmptyCatchHandler(BaseHandler):
                 if open_br != close_br:
                     body.append(cur_line)
                 elif is_empty(body):
-                    self.output.append(f"Предупреждение в методе <{context.name}>!\n"
+                    self.total_errors += 1
+                    self.output.append(f"{self.total_errors}) Предупреждение в методе <{context.name}>!\n"
                                        f"Отстутсвует обработка исключения или ошибки!  (строка {global_line_number - len(body)})\n")
                     return cur_line_number
                 elif not is_empty(body):
@@ -60,4 +62,6 @@ class EmptyCatchHandler(BaseHandler):
                     index = self.analyze_catch(index + 1, index + prev_index + 1, context)
                 else:
                     index += 1
+        self.output.append(self.vulnerability_name + ": " + str(self.total_errors))
+        self.total_errors = 0
         return self.output
