@@ -387,7 +387,7 @@ class CodeGenerator:
             file.write(code)
             self.line_number += 1
         # Генерация произвольного кода
-        for index in range(rng(2, 5)):
+        for index in range(rng(1, 2)):
             file.write(r_v(self.random_code_generators)(self, indent, generated_vars))
 
         # Конец функции
@@ -411,7 +411,7 @@ class CodeGenerator:
             self.line_number += 1
         for generator in vuln_generators:
             for index in range(rng(2, 3)):
-                file.write(r_v(self.random_code_generators)(self, indent, generated_vars))
+                #file.write(r_v(self.random_code_generators)(self, indent, generated_vars))
                 file.write(generator(self, indent, generated_vars))
         file.write("}\n")
         self.line_number += 1
@@ -428,7 +428,7 @@ class CodeGenerator:
                 print(e)
         for index in range(test_numbers):
             self.line_number = 1
-            file = open('../generated_tests/' + "+".join(vulnerabilities) + str(index + 1) + '.cpp', 'w')
+            file = open('../generated_tests/' + "+".join(vulnerabilities)[0] + str(index + 1) + '.cpp', 'w')
             generators = []
             for vuln in vulnerabilities:
                 generators.append(self.name_generator[vuln])
@@ -461,7 +461,7 @@ class CodeGenerator:
             #     review_file.write(to_write)
             for vulnerability in vulnerabilities:
                 to_write = main.handlers_list[vulnerability]().parse((find_contexts(
-                    clean_code('../generated_tests/' + "+".join(vulnerabilities) + str(index + 1) + '.cpp'))))[
+                    clean_code('../generated_tests/' + "+".join(vulnerabilities)[0] + str(index + 1) + '.cpp'))))[
                                -1] + "\n"
                 m = re.search(r'(\d+)', to_write)
                 tmp_cnt = int(m.group(1))
@@ -515,4 +515,5 @@ class CodeGenerator:
 
 if __name__ == '__main__':
     gen = CodeGenerator()
-    gen.gen_code(["Переполнение буфера", "SQL инъекции"], 3)
+    gen.gen_code(["Переполнение буфера", "Внедрение команд", "Утечка информации", "Небезопасное хранение данных",
+                  "Пренебрежение обработкой исключений"], 1)

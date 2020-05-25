@@ -47,7 +47,7 @@ class ReadersWritersHandler(BaseHandler):
                 is_no_mutex = False
         if is_no_mutex:
             self.total_errors += 1
-            return f"{self.total_errors - 1}) Отсутстввует блок синхронизации " \
+            return f"{self.total_errors}) Отсутстввует блок синхронизации " \
                    f"в исполняемой функции <{context.name}> (строка {context_beginning}) потока <{thread.thread_name}>"
 
         return ""

@@ -113,9 +113,9 @@ def show_vulns(queue):
     try:
         program, content, program_code = queue.get(block=True)
         queue.task_done()
-        f = open(program, 'a')  # дозапись в файл
-        for _, value in content.items():
-            f.write(value[1])
+        # f = open(program, 'a')  # дозапись в файл
+        # for _, value in content.items():
+        #     f.write(value[1])
         v_form = Form(program + ' - анализ программы', '1100x700', FONT)
         x = int((v_form.root.winfo_screenwidth() - v_form.root.winfo_reqwidth()) / 2) - 550
         y = int((v_form.root.winfo_screenheight() - v_form.root.winfo_reqheight()) / 2) - 300

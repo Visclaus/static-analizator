@@ -19,4 +19,4 @@ int main (char **argv){
    func_1(argv[1], argv[2]);
    strcpy(c, argv[3]);
    return 0;
-}Переполнение буфера: 1
+}
