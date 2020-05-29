@@ -515,5 +515,7 @@ class CodeGenerator:
 
 if __name__ == '__main__':
     gen = CodeGenerator()
-    gen.gen_code(["Переполнение буфера", "Внедрение команд", "Утечка информации", "Небезопасное хранение данных",
-                  "Пренебрежение обработкой исключений"], 1)
+    func_params = []
+    for index in range(rng(1, 9)):
+        func_params.append(r_v(v_funcs)('\t', func_params))
+    print(gen.gen_cond('\t', func_params))
