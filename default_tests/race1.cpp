@@ -3,6 +3,16 @@ signed short int function_9(int *var_7) {
 	long int var_23[22];
 	cout<<"pariatur. magna culpa "<<var_1;
 }
+signed short int function_10(int *var_7) {
+	char var_21[29];
+	long int var_23[22];
+	cout<<"pariatur. magna culpa "<<var_1;
+}
+signed short int function_11(int *var_7) {
+	char var_21[29];
+	long int var_23[22];
+	cout<<"pariatur. magna culpa "<<var_1;
+}
 int main() {
 	std::thread t1(function_9, var_39, var_29, var_13);
 	SHGetFolderPath(var_16, var_7, var_28, var_39, var_29);
@@ -16,6 +26,5 @@ int main() {
 		cout<<"ullamco ullamco anim "<<var_20;
 	}
 	std::uniform_real_distribution<> dis(3, 3);
-	std::thread t3(function_9, var_13, var_39, var_3);
+	std::thread t3(function_10, var_13, var_39, var_3);
 }
-Состояние гонки: 1Состояние гонки: 1

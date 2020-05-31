@@ -15,18 +15,17 @@ class RaceConditionHandler(BaseHandler):
             if len(context.threads) != 0:
                 declared_threads = context.threads
                 # part for detecting same runnables
-                funcs_to_threads = [[], []]
                 func_in_threads = []
                 # creating list of all runnables
                 for thread in declared_threads:
                     if thread.runnable_function not in func_in_threads:
                         func_in_threads.append(thread.runnable_function)
+                funcs_to_threads = [[] for i in range(len(func_in_threads))]
                 # filling list of func - threads
                 for index, func in enumerate(func_in_threads):
                     for thread in declared_threads:
                         if func == thread.runnable_function:
                             funcs_to_threads[index].append(thread)
-
                 # checking where function is used more than one time as runnable
                 for func_usage in funcs_to_threads:
                     if len(func_usage) > 1:

@@ -23,4 +23,3 @@ int main() {
 	cout<<"ullamco ut in "<<var_8;
 	std::thread t2(function_19, var_20, var_13, var_26);
 }
-Состояние гонки: 1
