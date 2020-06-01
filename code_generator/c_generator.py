@@ -339,11 +339,12 @@ class CodeGenerator:
 
     def readers_error(self, indent, params):
         code = ""
+        params_1 = [(param[0], param[1].replace("\t", "")) for param in params]
         for index in range(rng(2, 5)):
             for i in range(rng(2, 3)):
                 code += rand_value(self.random_code_generators)(self, indent, params)
-            chosen_param_list = [params[param][0] for param in gen_n_rands(4, 0, len(params) - 1)]
-            code += indent + "std::thread t" + str(index) + "(" + rand_value(self.cur_test_funcs) + ", " + ", ".join(
+            chosen_param_list = [params_1[param][0] for param in gen_n_rands(4, 0, len(params_1) - 1)]
+            code += indent + "std::thread t" + str(index) + "(" + rand_value(self.cur_test_funcs) + ', ' + ", ".join(
                 chosen_param_list) + ");\n"
             for i in self.gen_report_map:
                 if "Читатели Писатели" in i[0]:
@@ -554,40 +555,42 @@ class CodeGenerator:
 
 
 if __name__ == '__main__':
-    """
-    
-    Здесь происходит генерация тестового кода, ниже задан список соответсвия узявимости к ее номеру.
-    
-    1. Переполнение буфера
-    2. Внедрение команд
-    3. Утечка информации
-    4. Небезопасное хранение данных
-    5. Пренебрежение обработкой исключений
-    6. Некорректный доступ к файлам
-    7. Ошибка форматной строки
-    8. Переполнение целых чисел
-    9. Ошибка высвобождения памяти
-    10. Состояние гонки
-    11. Случайные числа криптографического характера
-    12. Читатели Писатели
-    13. SQL инъекции
-    
-    """
-
+    # """
+    #
+    # Здесь происходит генерация тестового кода, ниже задан список соответсвия узявимости к ее номеру.
+    #
+    # 1. Переполнение буфера
+    # 2. Внедрение команд
+    # 3. Утечка информации
+    # 4. Небезопасное хранение данных
+    # 5. Пренебрежение обработкой исключений
+    # 6. Некорректный доступ к файлам
+    # 7. Ошибка форматной строки
+    # 8. Переполнение целых чисел
+    # 9. Ошибка высвобождения памяти
+    # 10. Состояние гонки
+    # 11. Случайные числа криптографического характера
+    # 12. Читатели Писатели
+    # 13. SQL инъекции
+    #
+    # """
+    #
+    # generator = CodeGenerator()
+    # print('Какие уязвимости сгенерировать?(при нескольких значениях перечислить через запятую)\n')
+    # task_for_generation = input().split(',')
+    # if task_for_generation[0] == '-1':
+    #     task_for_generation = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']
+    # print("Выбранные уязвимости:")
+    # for index, task in enumerate(task_for_generation):
+    #     print(f"{index + 1}) {generator.tester_map[task]}:")
+    # print('Сколько тестов сгенерировать?\n')
+    # tests_cnt = int(input())
+    # generator.gen_code(task_for_generation, tests_cnt)
+    # generator.check_generated_code(task_for_generation)
+    # func_params = []
     generator = CodeGenerator()
-    print('Какие уязвимости сгенерировать?(при нескольких значениях перечислить через запятую)\n')
-    task_for_generation = input().split(',')
-    if task_for_generation[0] == '-1':
-        task_for_generation = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']
-    print("Выбранные уязвимости:")
-    for index, task in enumerate(task_for_generation):
-        print(f"{index + 1}) {generator.tester_map[task]}:")
-    print('Сколько тестов сгенерировать?\n')
-    tests_cnt = int(input())
-    generator.gen_code(task_for_generation, tests_cnt)
-    generator.check_generated_code(task_for_generation)
+    generator.cur_test_funcs = ['function_1', 'function_2']
     func_params = []
-
-    # for index in range(rng(1, 9)):
-    #     func_params.append(r_v(v_funcs)('\t', func_params))
-    # print(gen.gen_cond('\t', func_params))
+    for index in range(rng(20, 30)):
+        rand_value(vars_generators)('\t', func_params)
+    print(generator.race_error('\t', func_params))

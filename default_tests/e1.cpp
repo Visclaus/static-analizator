@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-
 int main(){
    try {
     gets("test");
@@ -20,4 +17,4 @@ int main(){
    }
    catch(error1){
    }
-}
+}������������� ���������� ����������: 1
