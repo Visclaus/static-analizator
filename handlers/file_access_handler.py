@@ -39,15 +39,15 @@ class IncorrectFileAccessHandler(BaseHandler):
                     self.output.append(f"{total_errors}) Предупреждение в методе <{context.name}>!\n"
                                        f"Использование функции открытия потока ввода/вывода <{match.group(1)}> "
                                        f"(строка {line_number}). Проверьте доступность открываемого файла")
-                # matches = re.finditer(r"(" + "|".join(streams) + r")\.open", line)
-                # for match in matches:
-                #     total_errors += 1
-                #     self.output.append(f"{total_errors}) Предупреждение в методе <{context.name}>!\n"
-                #                        f"Использование функции открытия потока ввода/вывода <{match.group(1)}> "
-                #                        f"(строка {line_number}). Проверьте доступность открываемого файла")
-
-                matches = re.finditer(self.pattern, line)
-                for match in matches:
+                if len(streams) > 0:
+                    matches_1 = re.finditer(r"(" + "|".join(streams) + r")\.open", line)
+                    for _ in matches_1:
+                        total_errors += 1
+                        self.output.append(f"{total_errors}) Предупреждение в методе <{context.name}>!\n"
+                                           f"Использование функции открытия потока ввода/вывода <open> "
+                                           f"(строка {line_number}). Проверьте доступность открываемого файла")
+                matches_2 = re.finditer(self.pattern, line)
+                for match in matches_2:
                     total_errors += 1
                     self.output.append(f"{total_errors}) Предупреждение в методе <{context.name}>!\n"
                                        f"Использование функции <{match.group(0)}>, которая осуществляет доступ к файлам"

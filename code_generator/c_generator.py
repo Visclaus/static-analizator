@@ -593,4 +593,5 @@ if __name__ == '__main__':
     func_params = []
     for index in range(rng(20, 30)):
         rand_value(vars_generators)('\t', func_params)
-    print(generator.race_error('\t', func_params))
+    for _ in range(5):
+        print(generator.iover_error('\t', func_params))

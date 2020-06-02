@@ -1,4 +1,4 @@
-unsigned char function_18(double var_12, long double var_10) {
+unsigned char function_18(double var_12, long double var_99) {
 	byte var_24[27];
 	ofstream var_33.open("D://labore");
 	signed char var_8[32];
@@ -6,6 +6,7 @@ unsigned char function_18(double var_12, long double var_10) {
 	unsigned int var_14;
 	unsigned long long int var_37 = 17;
 	float var_9;
+	ofstream var_10;
 	cout<<"Excepteur labore reprehenderit "<<var_12;
 	GetLastError();
 	try {
@@ -44,7 +45,7 @@ int main() {
 	catch (Exception_18 err) {
 		short var_23 = 19255;
 		long var_19 = 4910549457967975604;
-		int var_2 = 1361455551;
+		ifstream var_2;
 		executeQuery(var_16);
 		var_23 = var_19 + var_2;
 		try {

@@ -67,5 +67,5 @@ def gen_integer_with_value(indent, generated_vars: List[tuple]):
 
 
 if __name__ == '__main__':
-    for _ in range(10):
-        print(gen_integer_with_value("", []))
+    for _ in range(5):
+        print(gen_buffer("", []))
