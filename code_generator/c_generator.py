@@ -33,9 +33,9 @@ class CodeGenerator:
     tests_lines_cnt = []
     default_indent = '\t'
     line_number = 1
-    cur_condition_level = 1
-    cur_tc_level = 1
-    max_level = 1
+    cur_condition_level = 2
+    cur_tc_level = 2
+    max_level = 2
 
     def generate_condition(self, indent, params):
         code = ""
@@ -432,6 +432,7 @@ class CodeGenerator:
             file.write("mutex " + mutex_name + ";\n")
             self.line_number += 1
             self.mutexes.append(mutex_name)
+            print("mutex " + mutex_name + ";\n")
         file.write('\n')
         self.line_number += 1
 
@@ -555,43 +556,44 @@ class CodeGenerator:
 
 
 if __name__ == '__main__':
-    # """
-    #
-    # Здесь происходит генерация тестового кода, ниже задан список соответсвия узявимости к ее номеру.
-    #
-    # 1. Переполнение буфера
-    # 2. Внедрение команд
-    # 3. Утечка информации
-    # 4. Небезопасное хранение данных
-    # 5. Пренебрежение обработкой исключений
-    # 6. Некорректный доступ к файлам
-    # 7. Ошибка форматной строки
-    # 8. Переполнение целых чисел
-    # 9. Ошибка высвобождения памяти
-    # 10. Состояние гонки
-    # 11. Случайные числа криптографического характера
-    # 12. Читатели Писатели
-    # 13. SQL инъекции
-    #
-    # """
-    #
-    # generator = CodeGenerator()
-    # print('Какие уязвимости сгенерировать?(при нескольких значениях перечислить через запятую)\n')
-    # task_for_generation = input().split(',')
-    # if task_for_generation[0] == '-1':
-    #     task_for_generation = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']
-    # print("Выбранные уязвимости:")
-    # for index, task in enumerate(task_for_generation):
-    #     print(f"{index + 1}) {generator.tester_map[task]}:")
-    # print('Сколько тестов сгенерировать?\n')
-    # tests_cnt = int(input())
-    # generator.gen_code(task_for_generation, tests_cnt)
-    # generator.check_generated_code(task_for_generation)
-    # func_params = []
+    """
+
+    Здесь происходит генерация тестового кода, ниже задан список соответсвия узявимости к ее номеру.
+
+    1. Переполнение буфера
+    2. Внедрение команд
+    3. Утечка информации
+    4. Небезопасное хранение данных
+    5. Пренебрежение обработкой исключений
+    6. Некорректный доступ к файлам
+    7. Ошибка форматной строки
+    8. Переполнение целых чисел
+    9. Ошибка высвобождения памяти
+    10. Состояние гонки
+    11. Случайные числа криптографического характера
+    12. Читатели Писатели
+    13. SQL инъекции
+
+    """
+
     generator = CodeGenerator()
-    generator.cur_test_funcs = ['function_1', 'function_2']
-    func_params = []
-    for index in range(rng(20, 30)):
-        rand_value(vars_generators)('\t', func_params)
-    for _ in range(5):
-        print(generator.iover_error('\t', func_params))
+    print('Какие уязвимости сгенерировать?(при нескольких значениях перечислить через запятую)\n')
+    task_for_generation = input().split(',')
+    if task_for_generation[0] == '-1':
+        task_for_generation = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']
+    print("Выбранные уязвимости:")
+    for index, task in enumerate(task_for_generation):
+        print(f"{index + 1}) {generator.tester_map[task]}:")
+    print('Сколько тестов сгенерировать?\n')
+    tests_cnt = int(input())
+    generator.gen_code(task_for_generation, tests_cnt)
+    generator.check_generated_code(task_for_generation)
+    # func_params = []
+    # generator = CodeGenerator()
+    # generator.cur_test_funcs = ['function_1', 'function_2']
+    # func_params = []
+    # for index in range(rng(20, 30)):
+    #     rand_value(vars_generators)('\t', func_params)
+    # file = open('for_test', 'w', encoding="utf-8")
+    # for _ in range(5):
+    #     generator.declare_mutexes(file)
